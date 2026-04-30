@@ -154,6 +154,7 @@
       gap: 8px;
       justify-content: center;
       margin-top: 14px;
+      flex-wrap: wrap;
     }
     .view-btn {
       background: none;
@@ -654,6 +655,68 @@
       cursor: pointer;
     }
 
+    /* ── Data toolbar ── */
+    .data-toolbar {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding: 12px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .data-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 4px;
+      padding: 6px 14px;
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .data-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .data-btn.danger:hover { border-color: #A84C4C; color: #A84C4C; }
+    .data-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      color: var(--dim);
+      letter-spacing: 0.1em;
+      align-self: center;
+    }
+    #import-file { display: none; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      padding: 10px 20px;
+      border-radius: 6px;
+      z-index: 200;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
     /* ── Animations ── */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
@@ -672,9 +735,18 @@
 </head>
 <body>
   <div id="root"></div>
+  <div id="toast"></div>
+  <input type="file" id="import-file" accept=".json" />
+
   <script>
-  // ─── PWA MANIFEST (injected inline) ──────────────────────────────────────
+  // ─── PWA MANIFEST ─────────────────────────────────────────────────────────
+  // FIX: makeSvgIcon defined BEFORE it is called inside manifest object
   (function() {
+    function makeSvgIcon(size) {
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'><rect width='${size}' height='${size}' fill='%230B0906'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='${Math.round(size*0.45)}' fill='%23C9A84C'>গ</text></svg>`;
+      return 'data:image/svg+xml,' + svg;
+    }
+
     const manifest = {
       name: "গল্পবলিয়ে অভিযাত্রিক",
       short_name: "গল্পবলিয়ে",
@@ -689,10 +761,7 @@
         { src: makeSvgIcon(512), sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" },
       ]
     };
-    function makeSvgIcon(size) {
-      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'><rect width='${size}' height='${size}' fill='%230B0906'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='${Math.round(size*0.45)}' fill='%23C9A84C'>গ</text></svg>`;
-      return 'data:image/svg+xml,' + svg;
-    }
+
     const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
     const url  = URL.createObjectURL(blob);
     const link = document.createElement('link');
@@ -706,7 +775,7 @@
     document.head.appendChild(iconLink);
   })();
 
-  // ─── SERVICE WORKER (inline blob) ────────────────────────────────────────
+  // ─── SERVICE WORKER ───────────────────────────────────────────────────────
   if ('serviceWorker' in navigator) {
     const swCode = `
 const CACHE = 'golpoboliye-v1';
@@ -723,7 +792,8 @@ self.addEventListener('fetch', e => {
       const clone = res.clone();
       caches.open(CACHE).then(c => c.put(e.request, clone));
       return res;
-    }).catch(() => caches.match(e.request)))
+    // FIX: return a proper Response when both network and cache fail
+    }).catch(() => caches.match(e.request).then(r => r || new Response('Offline', {status:503, statusText:'Offline'}))))
   );
 });
     `;
@@ -732,7 +802,7 @@ self.addEventListener('fetch', e => {
     navigator.serviceWorker.register(swUrl).catch(() => {});
   }
 
-  // ─── DATA ────────────────────────────────────────────────────────────────
+  // ─── DATA ─────────────────────────────────────────────────────────────────
   const START_DATE = new Date(2026, 4, 4);
   const END_DATE   = new Date(2027, 0, 31);
   const WED_SERIES = ["Banglar Bhoot","Wizarding World bonam Banglar Tontro","Shotti Bhoutik Ghotona"];
@@ -761,23 +831,24 @@ self.addEventListener('fetch', e => {
     return META[dow];
   }
 
-  const DAY_S = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  const DAY_F = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const DAY_S  = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const DAY_F  = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-  function fmtKey(d)  { return d.toISOString().split("T")[0]; }
+  function fmtKey(d)   { return d.toISOString().split("T")[0]; }
   function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
-  function wkStart(d) { const x=new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate()-x.getDay()); return x; }
-  function dateMs(d)  { return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime(); }
-  function inRange(d) { return dateMs(d)>=dateMs(START_DATE) && dateMs(d)<=dateMs(END_DATE); }
-  function weekNum(ws){ const base=wkStart(START_DATE); return Math.max(1,Math.round((dateMs(ws)-dateMs(base))/(7*86400000))+1); }
+  function wkStart(d)  { const x=new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate()-x.getDay()); return x; }
+  function dateMs(d)   { return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime(); }
+  function inRange(d)  { return dateMs(d)>=dateMs(START_DATE) && dateMs(d)<=dateMs(END_DATE); }
+  // FIX: Math.floor instead of Math.round — avoids DST-caused off-by-one errors
+  function weekNum(ws) { const base=wkStart(START_DATE); return Math.max(1,Math.floor((dateMs(ws)-dateMs(base))/(7*86400000))+1); }
   function weekLabel(days){
     const a=days[0],b=days[6];
     if(a.getMonth()===b.getMonth()) return MONTHS[a.getMonth()]+" "+a.getFullYear();
     return MONTHS[a.getMonth()].slice(0,3)+" – "+MONTHS[b.getMonth()].slice(0,3)+" "+b.getFullYear();
   }
 
-  // ─── STATE ───────────────────────────────────────────────────────────────
+  // ─── STATE ────────────────────────────────────────────────────────────────
   let state = {
     ws: wkStart(START_DATE),
     sel: null,
@@ -791,10 +862,10 @@ self.addEventListener('fetch', e => {
     showInstallBanner: false,
   };
 
-  // ─── STORAGE ─────────────────────────────────────────────────────────────
-  function storageGet(key)       { try { return localStorage.getItem(key); } catch{ return null; } }
-  function storageSet(key, val)  { try { localStorage.setItem(key, val); } catch{} }
-  function storageList(prefix) {
+  // ─── STORAGE ──────────────────────────────────────────────────────────────
+  function storageGet(key)      { try { return localStorage.getItem(key); } catch{ return null; } }
+  function storageSet(key, val) { try { localStorage.setItem(key, val); } catch{} }
+  function storageList(prefix)  {
     const keys = [];
     try { for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.startsWith(prefix)) keys.push(k); } } catch{}
     return keys;
@@ -808,7 +879,6 @@ self.addEventListener('fetch', e => {
     });
     state.entries = batch;
     state.loaded = true;
-    render();
   }
 
   function saveEntry() {
@@ -831,15 +901,83 @@ self.addEventListener('fetch', e => {
     state.saveTimer = setTimeout(saveEntry, 1200);
   }
 
-  // ─── COMPUTED ────────────────────────────────────────────────────────────
-  function getDays()  { return Array.from({length:7},(_,i)=>addDays(state.ws,i)); }
+  // ─── EXPORT / IMPORT ──────────────────────────────────────────────────────
+  function exportData() {
+    const payload = {
+      app: "golpoboliye",
+      version: 1,
+      exported: new Date().toISOString(),
+      entries: state.entries,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = `golpoboliye-backup-${new Date().toISOString().split("T")[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast("✓ Exported successfully");
+  }
+
+  function importData() {
+    document.getElementById("import-file").click();
+  }
+
+  document.getElementById("import-file").addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        const payload = JSON.parse(ev.target.result);
+        if(payload.app !== "golpoboliye" || !payload.entries) {
+          showToast("✗ Invalid backup file"); return;
+        }
+        // Merge into localStorage and state
+        Object.entries(payload.entries).forEach(([k,v]) => {
+          storageSet("entry:"+k, JSON.stringify(v));
+          state.entries[k] = v;
+        });
+        render();
+        showToast(`✓ Imported ${Object.keys(payload.entries).length} entries`);
+      } catch {
+        showToast("✗ Could not read file");
+      }
+    };
+    reader.readAsText(file);
+    // Reset so same file can be re-imported if needed
+    this.value = "";
+  });
+
+  function clearAllData() {
+    if(!confirm("Clear ALL entries? This cannot be undone.\n\nExport a backup first if needed.")) return;
+    storageList("entry:").forEach(k => { try { localStorage.removeItem(k); } catch{} });
+    state.entries = {};
+    state.sel = null;
+    render();
+    showToast("✓ All entries cleared");
+  }
+
+  // ─── TOAST ────────────────────────────────────────────────────────────────
+  let toastTimer = null;
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
+  }
+
+  // ─── COMPUTED ─────────────────────────────────────────────────────────────
+  function getDays()   { return Array.from({length:7},(_,i)=>addDays(state.ws,i)); }
   function doneFrac(date) {
     const e = state.entries[fmtKey(date)];
     if(!e?.tasks?.length) return 0;
-    return e.tasks.filter(Boolean).length / e.tasks.length;
+    // FIX: explicitly check for === true to be robust against non-boolean values
+    return e.tasks.filter(t => t === true).length / e.tasks.length;
   }
   function totalLogged() { return Object.keys(state.entries).filter(k=>state.entries[k]?.title).length; }
-  function totalDone()   { return Object.values(state.entries).reduce((a,e)=>a+(e?.tasks?.filter(Boolean).length||0),0); }
+  function totalDone()   { return Object.values(state.entries).reduce((a,e)=>a+(e?.tasks?.filter(t=>t===true).length||0),0); }
   function totalTasks()  { return Object.values(state.entries).reduce((a,e)=>a+(e?.tasks?.length||0),0); }
   function overallPct()  { const t=totalTasks(); return t>0?Math.round((totalDone()/t)*100):0; }
   function allWeeks()    {
@@ -848,10 +986,10 @@ self.addEventListener('fetch', e => {
     return ws;
   }
 
-  // ─── SELECTION ───────────────────────────────────────────────────────────
+  // ─── SELECTION ────────────────────────────────────────────────────────────
   function selectDay(date) {
     state.sel = date;
-    const meta = getDayMeta(date);
+    const meta   = getDayMeta(date);
     const stored = state.entries[fmtKey(date)];
     state.edit = {
       title: stored?.title || "",
@@ -861,8 +999,8 @@ self.addEventListener('fetch', e => {
     state.status = "idle";
     render();
     setTimeout(() => {
-      const el = document.getElementById("detail-panel");
-      if(el) el.scrollIntoView({behavior:"smooth",block:"nearest"});
+      const panel = document.getElementById("detail-panel");
+      if(panel) panel.scrollIntoView({behavior:"smooth",block:"nearest"});
     }, 50);
   }
 
@@ -892,7 +1030,9 @@ self.addEventListener('fetch', e => {
   }
 
   function goToWeek(ws) { state.ws=ws; state.sel=null; state.view="week"; render(); }
-  function goToDay(ws, date) { state.ws=ws; selectDay(date); state.view="week"; render(); }
+  // FIX: set view and ws BEFORE calling selectDay (which calls render),
+  // so only one render happens and view is correct when it fires.
+  function goToDay(ws, date) { state.view="week"; state.ws=ws; selectDay(date); }
 
   function clearEntry() {
     if(!state.sel) return;
@@ -910,23 +1050,17 @@ self.addEventListener('fetch', e => {
     renderDetailBody();
   }
 
-  function updateTitle(val) {
-    state.edit.title = val;
-    scheduleAutoSave();
-  }
+  function updateTitle(val) { state.edit.title = val; scheduleAutoSave(); }
+  function updateNotes(val) { state.edit.notes = val; scheduleAutoSave(); }
 
-  function updateNotes(val) {
-    state.edit.notes = val;
-    scheduleAutoSave();
-  }
-
-  // ─── RENDER HELPERS ──────────────────────────────────────────────────────
+  // ─── RENDER HELPERS ───────────────────────────────────────────────────────
   function el(tag, attrs={}, ...children) {
     const e = document.createElement(tag);
     Object.entries(attrs).forEach(([k,v]) => {
       if(k==="style" && typeof v==="object") Object.assign(e.style, v);
       else if(k==="class") e.className=v;
-      else if(k.startsWith("on")) e[k.toLowerCase()]=v;
+      // FIX: use addEventListener for events to avoid camelCase lowercasing issues
+      else if(k.startsWith("on") && typeof v==="function") e.addEventListener(k.slice(2).toLowerCase(), v);
       else if(typeof v === "boolean") { if(v) e.setAttribute(k,""); else e.removeAttribute(k); }
       else e.setAttribute(k,v);
     });
@@ -936,15 +1070,15 @@ self.addEventListener('fetch', e => {
     });
     return e;
   }
-  function div(attrs,...c) { return el("div",attrs,...c); }
-  function span(attrs,...c){ return el("span",attrs,...c); }
-  function btn(attrs,...c) { return el("button",attrs,...c); }
+  function div(attrs,...c)  { return el("div",attrs,...c); }
+  function span(attrs,...c) { return el("span",attrs,...c); }
+  function btn(attrs,...c)  { return el("button",attrs,...c); }
 
   function renderStatusOnly() {
     const s = document.getElementById("save-status");
     if(!s) return;
     s.textContent = state.status==="saved"?"✓ SAVED":state.status==="saving"?"SAVING...":"·";
-    s.style.color = state.status==="saved"?"#4A9F6B":state.status==="saving"?"var(--muted)":"transparent";
+    s.style.color  = state.status==="saved"?"#4A9F6B":state.status==="saving"?"var(--muted)":"transparent";
   }
 
   function renderDetailBody() {
@@ -953,16 +1087,17 @@ self.addEventListener('fetch', e => {
     body.replaceChildren(buildDetailBody());
   }
 
+  // ─── BUILD FUNCTIONS ──────────────────────────────────────────────────────
   function buildDayStrip() {
     const days = getDays();
     return div({class:"day-strip"},
       ...days.map(date => {
-        const ok = inRange(date);
-        const key = fmtKey(date);
-        const m   = ok?getDayMeta(date):null;
-        const frac = doneFrac(date);
+        const ok    = inRange(date);
+        const key   = fmtKey(date);
+        const m     = ok?getDayMeta(date):null;
+        const frac  = doneFrac(date);
         const isSel = state.sel && fmtKey(state.sel)===key;
-        const e = state.entries[key];
+        const e     = state.entries[key];
         const allDone = frac===1 && e?.tasks?.length>0;
         const cell = div({
           class:"day-cell"+(ok?"":" out-of-range")+(isSel?" selected":""),
@@ -994,9 +1129,9 @@ self.addEventListener('fetch', e => {
 
   function buildDetailBody() {
     if(!state.sel) return div({});
-    const meta = getDayMeta(state.sel);
-    const doneCnt = state.edit.tasks.filter(Boolean).length;
-    const pct = meta.tasks.length>0?(doneCnt/meta.tasks.length)*100:0;
+    const meta    = getDayMeta(state.sel);
+    const doneCnt = state.edit.tasks.filter(t => t === true).length;
+    const pct     = meta.tasks.length>0?(doneCnt/meta.tasks.length)*100:0;
 
     return div({},
       // Title field
@@ -1017,7 +1152,7 @@ self.addEventListener('fetch', e => {
         el("label",{class:"field-label"},"Tasks"),
         div({class:"task-list"},
           ...meta.tasks.map((task,i) => {
-            const done = state.edit.tasks[i]??false;
+            const done = state.edit.tasks[i] === true;
             return div({
               class:"task-row"+(done?" done":""),
               style:{
@@ -1070,14 +1205,13 @@ self.addEventListener('fetch', e => {
 
   function buildDetail() {
     if(!state.sel) return null;
-    const meta = getDayMeta(state.sel);
+    const meta  = getDayMeta(state.sel);
     const panel = div({
       id:"detail-panel",
       class:"detail-panel",
       style:{border:`1px solid ${meta.accent}50`,boxShadow:`0 0 40px ${meta.accent}10`},
     });
 
-    // Header
     const hdr = div({class:"detail-header"},
       div({},
         div({class:"detail-date",style:{color:meta.accent}},
@@ -1106,10 +1240,10 @@ self.addEventListener('fetch', e => {
       div({class:"week-list-section-title"},"This Week's Schedule"),
       div({class:"week-list"},
         ...days.filter(d=>inRange(d)).map(date => {
-          const m = getDayMeta(date);
-          const e = state.entries[fmtKey(date)];
+          const m    = getDayMeta(date);
+          const e    = state.entries[fmtKey(date)];
           const frac = doneFrac(date);
-          const row = div({
+          return div({
             class:"week-row",
             onclick:()=>selectDay(date),
             onmouseenter: ev=>ev.currentTarget.style.borderColor=m.accent+"60",
@@ -1129,7 +1263,6 @@ self.addEventListener('fetch', e => {
             div({class:"week-row-label",style:{color:m.isMain||m.isSpecial?m.accent:"var(--dim)",fontWeight:m.isMain?700:400}},m.label),
             frac>0 ? div({class:"dot-indicator",style:{background:frac===1?"#4A9F6B":m.accent}}) : null,
           );
-          return row;
         })
       )
     );
@@ -1141,18 +1274,18 @@ self.addEventListener('fetch', e => {
       div({class:"overview-title"},"All 39 Weeks · May 2026 – Jan 2027"),
       div({class:"overview-weeks"},
         ...weeks.map(wk => {
-          const wkDays = Array.from({length:7},(_,i)=>addDays(wk,i));
-          const wkNum  = weekNum(wk);
-          const wkLbl  = weekLabel(wkDays);
+          const wkDays    = Array.from({length:7},(_,i)=>addDays(wk,i));
+          const wkN       = weekNum(wk);
+          const wkLbl     = weekLabel(wkDays);
           const validDays = wkDays.filter(inRange);
-          const wkDone  = validDays.reduce((a,d)=>a+doneFrac(d),0);
-          const wkTotal = validDays.length;
-          const wkPct   = wkTotal>0?wkDone/wkTotal:0;
+          const wkDone    = validDays.reduce((a,d)=>a+doneFrac(d),0);
+          const wkTotal   = validDays.length;
+          const wkPct     = wkTotal>0?wkDone/wkTotal:0;
 
           return div({class:"overview-week"},
             div({class:"overview-week-header"},
               div({},
-                span({class:"overview-week-label"},`WEEK ${wkNum} · `),
+                span({class:"overview-week-label"},`WEEK ${wkN} · `),
                 span({class:"overview-week-month"},wkLbl),
               ),
               div({class:"overview-week-right"},
@@ -1164,8 +1297,8 @@ self.addEventListener('fetch', e => {
             ),
             div({class:"overview-days"},
               ...validDays.map(date => {
-                const m = getDayMeta(date);
-                const e = state.entries[fmtKey(date)];
+                const m    = getDayMeta(date);
+                const e    = state.entries[fmtKey(date)];
                 const frac = doneFrac(date);
                 return div({
                   class:"ov-day-pill",
@@ -1190,6 +1323,15 @@ self.addEventListener('fetch', e => {
     );
   }
 
+  function buildDataToolbar() {
+    return div({class:"data-toolbar"},
+      span({class:"data-label"},"Data:"),
+      btn({class:"data-btn",onclick:exportData},"⬇ Export Backup"),
+      btn({class:"data-btn",onclick:importData},"⬆ Import Backup"),
+      btn({class:"data-btn danger",onclick:clearAllData},"✕ Clear All"),
+    );
+  }
+
   function buildInstallBanner() {
     if(!state.showInstallBanner) return null;
     return div({id:"install-banner"},
@@ -1203,13 +1345,13 @@ self.addEventListener('fetch', e => {
     );
   }
 
-  // ─── MAIN RENDER ─────────────────────────────────────────────────────────
+  // ─── MAIN RENDER ──────────────────────────────────────────────────────────
   function render() {
     const root = document.getElementById("root");
     const days = getDays();
-    const pct = overallPct();
-    const tl = totalLogged();
-    const td = totalDone();
+    const pct  = overallPct();
+    const tl   = totalLogged();
+    const td   = totalDone();
 
     root.innerHTML = "";
 
@@ -1220,7 +1362,7 @@ self.addEventListener('fetch', e => {
       div({class:"header-dates"},"May 4, 2026 – Jan 31, 2027"),
       div({class:"stats-row"},
         ...[ ["Episodes Titled",tl], ["Tasks Done",td], ["Completion",pct+"%"], ["Weeks Total",39] ]
-          .map(([l,v])=>div({class:"stat-item"},div({class:"stat-val"},v),div({class:"stat-label"},l)))
+          .map(([l,v])=>div({class:"stat-item"},div({class:"stat-val"},String(v)),div({class:"stat-label"},l)))
       ),
       totalTasks()>0 ? div({class:"progress-wrap"},
         div({class:"progress-track"},div({class:"progress-fill",style:{width:pct+"%"}})),
@@ -1233,8 +1375,10 @@ self.addEventListener('fetch', e => {
     );
     root.appendChild(header);
 
+    // Data toolbar (always visible)
+    root.appendChild(buildDataToolbar());
+
     if(state.view==="week") {
-      // Week nav
       const nav = div({class:"week-nav"},
         btn({class:"ghost-btn",onclick:prevWeek,disabled:dateMs(state.ws)<=dateMs(wkStart(START_DATE))},"←"),
         div({},
@@ -1245,7 +1389,6 @@ self.addEventListener('fetch', e => {
       );
       root.appendChild(nav);
       root.appendChild(btn({class:"jump-btn",onclick:goWeek1},"↩ Jump to Week 1"));
-
       root.appendChild(buildDayStrip());
 
       if(state.sel) root.appendChild(buildDetail());
@@ -1269,12 +1412,11 @@ self.addEventListener('fetch', e => {
       )
     ));
 
-    // Install banner
     const banner = buildInstallBanner();
     if(banner) root.appendChild(banner);
   }
 
-  // ─── PWA INSTALL ─────────────────────────────────────────────────────────
+  // ─── PWA INSTALL ──────────────────────────────────────────────────────────
   window.addEventListener("beforeinstallprompt", e => {
     e.preventDefault();
     state.deferredPrompt = e;
@@ -1290,18 +1432,18 @@ self.addEventListener('fetch', e => {
     if(state.deferredPrompt) {
       state.deferredPrompt.prompt();
       state.deferredPrompt.userChoice.then(()=>{
-        state.deferredPrompt=null;
-        state.showInstallBanner=false;
+        state.deferredPrompt = null;
+        state.showInstallBanner = false;
         render();
       });
     }
   }
   function dismissInstall() {
-    state.showInstallBanner=false;
+    state.showInstallBanner = false;
     render();
   }
 
-  // ─── BOOT ────────────────────────────────────────────────────────────────
+  // ─── BOOT ─────────────────────────────────────────────────────────────────
   loadEntries();
   render();
   </script>
