@@ -10,9 +10,6 @@
   <meta name="description" content="Content Journal for Golpoboliye Obhijatrik — May 2026 to Jan 2027" />
   <title>গল্পবলিয়ে অভিযাত্রিক</title>
 
-  <!-- PWA Manifest injected inline via JS below -->
-
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -41,7 +38,6 @@
       overscroll-behavior: none;
     }
 
-    /* Noise texture overlay */
     body::before {
       content: '';
       position: fixed;
@@ -62,7 +58,6 @@
       padding-bottom: max(80px, env(safe-area-inset-bottom, 80px));
     }
 
-    /* ── Typography ── */
     .font-mono  { font-family: 'Space Mono', monospace; }
     .font-serif { font-family: 'Playfair Display', serif; }
     .font-body  { font-family: 'EB Garamond', serif; }
@@ -123,22 +118,9 @@
     }
 
     /* ── Progress bar ── */
-    .progress-wrap {
-      max-width: 260px;
-      margin: 0 auto 14px;
-    }
-    .progress-track {
-      height: 3px;
-      background: var(--border);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: var(--gold);
-      border-radius: 2px;
-      transition: width 0.4s ease;
-    }
+    .progress-wrap { max-width: 260px; margin: 0 auto 14px; }
+    .progress-track { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.4s ease; }
     .progress-label {
       font-family: 'Space Mono', monospace;
       font-size: 8px;
@@ -169,10 +151,7 @@
       cursor: pointer;
       transition: all 0.15s;
     }
-    .view-btn.active {
-      background: var(--gold);
-      color: var(--bg);
-    }
+    .view-btn.active { background: var(--gold); color: var(--bg); }
 
     /* ── Week nav ── */
     .week-nav {
@@ -196,20 +175,8 @@
     }
     .ghost-btn:disabled { opacity: 0.3; cursor: default; }
     .ghost-btn:not(:disabled):hover { border-color: var(--gold); }
-    .week-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 18px;
-      color: var(--text);
-      text-align: center;
-    }
-    .week-sub {
-      font-family: 'Space Mono', monospace;
-      font-size: 8px;
-      color: var(--muted);
-      letter-spacing: 0.2em;
-      text-align: center;
-      margin-top: 2px;
-    }
+    .week-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--text); text-align: center; }
+    .week-sub { font-family: 'Space Mono', monospace; font-size: 8px; color: var(--muted); letter-spacing: 0.2em; text-align: center; margin-top: 2px; }
     .jump-btn {
       display: block;
       width: 100%;
@@ -239,60 +206,25 @@
       border-radius: 8px;
       padding: 7px 4px;
       cursor: pointer;
-      opacity: 1;
-      transition: all 0.15s;
       min-height: 88px;
       position: relative;
       overflow: hidden;
+      transition: all 0.15s;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
     .day-cell.out-of-range { opacity: 0.12; cursor: default; pointer-events: none; }
     .day-cell.selected { background: var(--cardHov); }
-    .day-cell .comp-bar {
-      position: absolute;
-      bottom: 0; left: 0;
-      height: 2px;
-      transition: width 0.3s;
-    }
-    .day-cell .done-glow {
-      position: absolute;
-      inset: 0;
-      border-radius: 7px;
-    }
-    .day-short {
-      font-family: 'Space Mono', monospace;
-      font-size: 7px;
-      color: var(--muted);
-      line-height: 1;
-    }
-    .day-num {
-      font-family: 'Playfair Display', serif;
-      font-size: 19px;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.1;
-      margin: 2px 0 3px;
-    }
+    .day-cell .comp-bar { position: absolute; bottom: 0; left: 0; height: 2px; transition: width 0.3s; }
+    .day-cell .done-glow { position: absolute; inset: 0; border-radius: 7px; }
+    .day-short { font-family: 'Space Mono', monospace; font-size: 7px; color: var(--muted); line-height: 1; }
+    .day-num { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 700; color: var(--text); line-height: 1.1; margin: 2px 0 3px; }
     .day-num.selected { color: var(--gold); }
     .day-emoji { font-size: 12px; line-height: 1; margin-bottom: 2px; }
-    .day-label {
-      font-family: 'Space Mono', monospace;
-      font-size: 7px;
-      line-height: 1.3;
-      color: var(--muted);
-    }
+    .day-label { font-family: 'Space Mono', monospace; font-size: 7px; line-height: 1.3; color: var(--muted); }
     .day-label.main { color: var(--gold); font-weight: 700; }
     .day-label.special { color: #FFD700; font-weight: 700; }
-    .day-titled {
-      font-size: 7px;
-      color: #4A8F7B;
-      margin-top: 3px;
-      font-style: italic;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+    .day-titled { font-size: 7px; color: #4A8F7B; margin-top: 3px; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     /* ── Detail panel ── */
     .detail-panel {
@@ -310,62 +242,15 @@
       padding-bottom: 14px;
       border-bottom: 1px solid var(--border);
     }
-    .detail-date {
-      font-family: 'Space Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      margin-bottom: 5px;
-    }
-    .detail-series {
-      font-family: 'Playfair Display', serif;
-      font-size: 20px;
-      color: var(--text);
-      line-height: 1.2;
-      margin-bottom: 3px;
-    }
-    .detail-platform {
-      font-family: 'Space Mono', monospace;
-      font-size: 9px;
-      color: var(--muted);
-    }
-    .detail-milestone {
-      font-family: 'Space Mono', monospace;
-      font-size: 9px;
-      color: #FFD700;
-      letter-spacing: 0.15em;
-      margin-top: 6px;
-    }
-    .save-status {
-      font-family: 'Space Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.1em;
-      transition: color 0.3s;
-      text-align: right;
-      min-height: 14px;
-    }
-    .close-btn {
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 20px;
-      line-height: 1;
-      padding: 4px;
-      margin-top: 4px;
-      -webkit-tap-highlight-color: transparent;
-    }
+    .detail-date { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 5px; }
+    .detail-series { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); line-height: 1.2; margin-bottom: 3px; }
+    .detail-platform { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); }
+    .detail-milestone { font-family: 'Space Mono', monospace; font-size: 9px; color: #FFD700; letter-spacing: 0.15em; margin-top: 6px; }
+    .save-status { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.1em; transition: color 0.3s; text-align: right; min-height: 14px; }
+    .close-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 20px; line-height: 1; padding: 4px; margin-top: 4px; -webkit-tap-highlight-color: transparent; }
 
     /* ── Field label ── */
-    .field-label {
-      display: block;
-      font-family: 'Space Mono', monospace;
-      font-size: 8px;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 7px;
-    }
+    .field-label { display: block; font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
 
     /* ── Input / Textarea ── */
     input[type=text], textarea {
@@ -379,19 +264,54 @@
       font-family: 'Playfair Display', serif;
       -webkit-appearance: none;
     }
-    input[type=text] {
-      padding: 11px 14px;
-      font-size: 17px;
-    }
-    textarea {
-      padding: 11px 14px;
-      font-size: 15px;
-      font-family: 'EB Garamond', serif;
-      line-height: 1.7;
-      resize: vertical;
-      min-height: 110px;
-    }
+    input[type=text] { padding: 11px 14px; font-size: 17px; }
+    textarea { padding: 11px 14px; font-size: 15px; font-family: 'EB Garamond', serif; line-height: 1.7; resize: vertical; min-height: 110px; }
     input::placeholder, textarea::placeholder { color: var(--dim); font-style: italic; }
+
+    /* ── Category / Tag selectors ── */
+    .cat-section { margin-bottom: 20px; }
+    .cat-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .cat-chip {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .cat-chip.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--bg);
+    }
+    .cat-chip.accent-active {
+      color: #fff;
+    }
+    .subcat-group { margin-top: 8px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; }
+    .subcat-label { font-family: 'Space Mono', monospace; font-size: 7px; color: var(--dim); letter-spacing: 0.2em; margin-bottom: 7px; text-transform: uppercase; }
+    .subcat-row { display: flex; flex-wrap: wrap; gap: 5px; }
+    .subcat-chip {
+      font-family: 'Space Mono', monospace;
+      font-size: 7px;
+      letter-spacing: 0.08em;
+      padding: 4px 8px;
+      border-radius: 3px;
+      border: 1px solid var(--dim);
+      background: transparent;
+      color: var(--dim);
+      cursor: pointer;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .subcat-chip.active { border-color: currentColor; color: inherit; background: transparent; opacity: 1; }
 
     /* ── Task list ── */
     .task-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 10px; }
@@ -407,7 +327,6 @@
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
-    .task-row.done { }
     .task-checkbox {
       width: 16px;
       height: 16px;
@@ -422,55 +341,19 @@
       font-family: monospace;
       transition: all 0.15s;
     }
-    .task-text {
-      font-size: 14px;
-      color: #C8B898;
-      transition: all 0.15s;
-      line-height: 1.3;
-    }
+    .task-text { font-size: 14px; color: #C8B898; transition: all 0.15s; line-height: 1.3; }
     .task-text.done { color: var(--muted); text-decoration: line-through; }
 
     /* ── Task progress ── */
-    .task-progress-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .task-progress-track {
-      flex: 1;
-      height: 3px;
-      background: var(--border);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .task-progress-fill {
-      height: 100%;
-      border-radius: 2px;
-      transition: width 0.3s;
-    }
-    .task-progress-label {
-      font-family: 'Space Mono', monospace;
-      font-size: 9px;
-      color: var(--muted);
-      white-space: nowrap;
-    }
+    .task-progress-row { display: flex; align-items: center; gap: 10px; }
+    .task-progress-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .task-progress-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+    .task-progress-label { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); white-space: nowrap; }
     .all-done-badge { color: #4A9F6B; margin-left: 5px; }
 
     /* ── Footer actions ── */
-    .detail-footer {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-top: 16px;
-    }
-    .autosave-hint {
-      font-family: 'Space Mono', monospace;
-      font-size: 8px;
-      color: var(--dim);
-      flex: 1;
-      letter-spacing: 0.1em;
-    }
+    .detail-footer { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+    .autosave-hint { font-family: 'Space Mono', monospace; font-size: 8px; color: var(--dim); flex: 1; letter-spacing: 0.1em; }
     .small-btn {
       background: transparent;
       border: 1px solid var(--border);
@@ -501,14 +384,7 @@
 
     /* ── Week mini list ── */
     .week-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 28px; }
-    .week-list-section-title {
-      font-family: 'Space Mono', monospace;
-      font-size: 9px;
-      color: var(--muted);
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
+    .week-list-section-title { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 12px; }
     .week-row {
       display: flex;
       align-items: center;
@@ -530,80 +406,30 @@
     .week-row-series { font-family: 'Space Mono', monospace; font-size: 8px; color: var(--dim); margin-top: 2px; }
     .week-row-label { font-family: 'Space Mono', monospace; font-size: 8px; flex-shrink: 0; }
     .dot-indicator { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .week-row-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px; }
+    .week-tag { font-family: 'Space Mono', monospace; font-size: 6px; padding: 1px 5px; border-radius: 2px; border: 1px solid currentColor; opacity: 0.7; }
 
     /* ── Overview ── */
-    .overview-title {
-      font-family: 'Space Mono', monospace;
-      font-size: 9px;
-      color: var(--muted);
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      margin-bottom: 18px;
-      text-align: center;
-    }
+    .overview-title { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 18px; text-align: center; }
     .overview-weeks { display: flex; flex-direction: column; gap: 14px; margin-bottom: 36px; }
-    .overview-week {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .overview-week-header {
-      padding: 9px 14px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .overview-week { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .overview-week-header { padding: 9px 14px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
     .overview-week-label { font-family: 'Space Mono', monospace; font-size: 8px; color: var(--muted); letter-spacing: 0.18em; }
     .overview-week-month { font-family: 'Playfair Display', serif; font-size: 13px; color: var(--text); }
     .overview-week-right { display: flex; align-items: center; gap: 8px; }
     .mini-progress { width: 54px; height: 2px; background: var(--border); border-radius: 1px; overflow: hidden; }
     .mini-progress-fill { height: 100%; border-radius: 1px; transition: width 0.3s; }
-    .overview-view-btn {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--gold);
-      border-radius: 4px;
-      padding: 3px 8px;
-      font-family: 'Space Mono', monospace;
-      font-size: 7px;
-      letter-spacing: 0.1em;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
+    .overview-view-btn { background: none; border: 1px solid var(--border); color: var(--gold); border-radius: 4px; padding: 3px 8px; font-family: 'Space Mono', monospace; font-size: 7px; letter-spacing: 0.1em; cursor: pointer; -webkit-tap-highlight-color: transparent; }
     .overview-days { padding: 8px 14px; display: flex; gap: 5px; flex-wrap: wrap; }
-    .ov-day-pill {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 3px 7px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      cursor: pointer;
-      transition: all 0.15s;
-      -webkit-tap-highlight-color: transparent;
-    }
+    .ov-day-pill { display: flex; align-items: center; gap: 4px; padding: 3px 7px; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; cursor: pointer; transition: all 0.15s; -webkit-tap-highlight-color: transparent; }
     .ov-day-emoji { font-size: 10px; }
     .ov-day-date { font-family: 'Space Mono', monospace; font-size: 7px; color: var(--muted); }
     .ov-day-title { font-size: 9px; color: #4A8F7B; font-style: italic; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .ov-done-check { font-size: 8px; color: #4A9F6B; }
 
     /* ── Legend ── */
-    .legend {
-      border-top: 1px solid var(--border);
-      padding-top: 18px;
-    }
-    .legend-title {
-      font-family: 'Space Mono', monospace;
-      font-size: 9px;
-      color: var(--dim);
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-      text-align: center;
-    }
+    .legend { border-top: 1px solid var(--border); padding-top: 18px; }
+    .legend-title { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--dim); letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 10px; text-align: center; }
     .legend-items { display: flex; flex-wrap: wrap; gap: 7px 14px; justify-content: center; }
     .legend-item { display: flex; align-items: center; gap: 4px; }
     .legend-emoji { font-size: 11px; }
@@ -631,65 +457,15 @@
     .install-text { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text); letter-spacing: 0.05em; }
     .install-text span { color: var(--gold); }
     .install-actions { display: flex; gap: 8px; }
-    .install-btn {
-      background: var(--gold);
-      color: var(--bg);
-      border: none;
-      border-radius: 5px;
-      padding: 8px 16px;
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      cursor: pointer;
-    }
-    .dismiss-btn {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: 5px;
-      padding: 8px 12px;
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      cursor: pointer;
-    }
+    .install-btn { background: var(--gold); color: var(--bg); border: none; border-radius: 5px; padding: 8px 16px; font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; }
+    .dismiss-btn { background: none; border: 1px solid var(--border); color: var(--muted); border-radius: 5px; padding: 8px 12px; font-family: 'Space Mono', monospace; font-size: 10px; cursor: pointer; }
 
     /* ── Data toolbar ── */
-    .data-toolbar {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-      padding: 12px 14px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-    }
-    .data-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: 4px;
-      padding: 6px 14px;
-      font-family: 'Space Mono', monospace;
-      font-size: 8px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.15s;
-      -webkit-tap-highlight-color: transparent;
-    }
+    .data-toolbar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+    .data-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 4px; padding: 6px 14px; font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; -webkit-tap-highlight-color: transparent; }
     .data-btn:hover { border-color: var(--gold); color: var(--gold); }
     .data-btn.danger:hover { border-color: #A84C4C; color: #A84C4C; }
-    .data-label {
-      font-family: 'Space Mono', monospace;
-      font-size: 8px;
-      color: var(--dim);
-      letter-spacing: 0.1em;
-      align-self: center;
-    }
+    .data-label { font-family: 'Space Mono', monospace; font-size: 8px; color: var(--dim); letter-spacing: 0.1em; align-self: center; }
     #import-file { display: none; }
 
     /* ── Toast ── */
@@ -712,20 +488,11 @@
       pointer-events: none;
       white-space: nowrap;
     }
-    #toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     /* ── Animations ── */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to   { transform: translateY(0); }
-    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
     /* ── Scrollbar ── */
     ::-webkit-scrollbar { width: 5px; }
@@ -740,13 +507,11 @@
 
   <script>
   // ─── PWA MANIFEST ─────────────────────────────────────────────────────────
-  // FIX: makeSvgIcon defined BEFORE it is called inside manifest object
   (function() {
     function makeSvgIcon(size) {
       const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'><rect width='${size}' height='${size}' fill='%230B0906'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='${Math.round(size*0.45)}' fill='%23C9A84C'>গ</text></svg>`;
       return 'data:image/svg+xml,' + svg;
     }
-
     const manifest = {
       name: "গল্পবলিয়ে অভিযাত্রিক",
       short_name: "গল্পবলিয়ে",
@@ -761,14 +526,11 @@
         { src: makeSvgIcon(512), sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" },
       ]
     };
-
     const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
     const url  = URL.createObjectURL(blob);
     const link = document.createElement('link');
     link.rel = 'manifest'; link.href = url;
     document.head.appendChild(link);
-
-    // Apple touch icon
     const iconLink = document.createElement('link');
     iconLink.rel = 'apple-touch-icon';
     iconLink.href = makeSvgIcon(180);
@@ -778,21 +540,18 @@
   // ─── SERVICE WORKER ───────────────────────────────────────────────────────
   if ('serviceWorker' in navigator) {
     const swCode = `
-const CACHE = 'golpoboliye-v1';
+const CACHE = 'golpoboliye-v2';
 const ASSETS = [self.location.href];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
-self.addEventListener('activate', e => {
-  e.waitUntil(clients.claim());
-});
+self.addEventListener('activate', e => { e.waitUntil(clients.claim()); });
 self.addEventListener('fetch', e => {
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request).then(res => {
       const clone = res.clone();
       caches.open(CACHE).then(c => c.put(e.request, clone));
       return res;
-    // FIX: return a proper Response when both network and cache fail
     }).catch(() => caches.match(e.request).then(r => r || new Response('Offline', {status:503, statusText:'Offline'}))))
   );
 });
@@ -802,7 +561,229 @@ self.addEventListener('fetch', e => {
     navigator.serviceWorker.register(swUrl).catch(() => {});
   }
 
-  // ─── DATA ─────────────────────────────────────────────────────────────────
+  // ─── CATEGORY TAXONOMY ────────────────────────────────────────────────────
+  // Each content type defines: categories (top-level), and for each category optional subcategories
+  const TAXONOMY = {
+    // Monday — Bookstagram / Deep Dive
+    bookstagram: {
+      label: "Bookstagram",
+      categories: [
+        {
+          id: "review", label: "Review", color: "#9B72CF",
+          subs: ["Horror","Thriller","Mystery","Adventure","Fantasy","Romance","Literary Fiction","Historical","Sci-Fi","Bengali Literature","Contemporary"]
+        },
+        {
+          id: "tbr", label: "TBR", color: "#7B9ECF",
+          subs: ["Horror","Thriller","Mystery","Adventure","Fantasy","Romance","Literary Fiction","Historical","Sci-Fi","Bengali Literature","Contemporary"]
+        },
+        {
+          id: "currently-reading", label: "Currently Reading", color: "#CF9B72",
+          subs: ["Horror","Thriller","Mystery","Adventure","Fantasy","Romance","Literary Fiction","Historical","Sci-Fi","Bengali Literature","Contemporary"]
+        },
+        {
+          id: "book-haul", label: "Book Haul", color: "#72CF9B",
+          subs: ["Physical Books","eBooks","Bengali Books","English Books","Used Books","New Arrivals"]
+        },
+        {
+          id: "ig-story", label: "IG Story", color: "#CF7B9B",
+          subs: ["Poll","Quote Card","Behind the Pages","Reading Update","Recommendation"]
+        },
+      ]
+    },
+    // Tuesday — Audiobook Promo
+    promo: {
+      label: "Promo",
+      categories: [
+        {
+          id: "audiobook-promo", label: "Audiobook Promo", color: "#C9A84C",
+          subs: ["Horror","Thriller","Mystery","Adventure","Fantasy","Romance","Bengali Folklore","Historical","Sci-Fi","Contemporary"]
+        },
+        {
+          id: "coming-soon", label: "Coming Soon Teaser", color: "#CF9B4C",
+          subs: ["Horror","Thriller","Mystery","Adventure","Fantasy","Romance","Bengali Folklore"]
+        },
+        {
+          id: "yt-community", label: "YouTube Community Post", color: "#CF4C4C",
+          subs: ["Milestone","Poll","Announcement","Behind the Mic","Series Teaser"]
+        },
+        {
+          id: "ig-reel-promo", label: "IG Reel Promo", color: "#4CCFCF",
+          subs: ["Audio Clip","Trailer","Reading Teaser","Mood Clip"]
+        },
+      ]
+    },
+    // Wednesday — Lore Drop
+    lore: {
+      label: "Lore Drop",
+      categories: [
+        {
+          id: "banglar-bhoot", label: "Banglar Bhoot", color: "#A84C4C",
+          subs: ["Petni","Shakchunni","Brahmodaitya","Mamdo Bhoot","Mechho Bhoot","Nishi","Kanabhulo","New Creature"]
+        },
+        {
+          id: "wizarding-world", label: "Wizarding World vs Banglar Tontro", color: "#7B4CCF",
+          subs: ["Spell Comparison","Magical Creature","Ritual","Folklore Lore","Character Lore","World-building"]
+        },
+        {
+          id: "shotti-bhoutik", label: "Shotti Bhoutik Ghotona", color: "#CF6B4C",
+          subs: ["Haunting","Possession","True Crime","Urban Legend","Eyewitness Account","Place Lore"]
+        },
+        {
+          id: "yt-short-lore", label: "YouTube Short", color: "#4C8FCF",
+          subs: ["Animated Lore","Narrated Short","Quick Fact","Myth vs Fact"]
+        },
+      ]
+    },
+    // Thursday — Behind the Mic
+    btm: {
+      label: "Behind the Mic",
+      categories: [
+        {
+          id: "recording-bts", label: "Recording BTS", color: "#4A9F8B",
+          subs: ["Studio Setup","Voice Warm-up","Bloopers","Mic Tips","Recording Process"]
+        },
+        {
+          id: "production-bts", label: "Production BTS", color: "#4A7F9B",
+          subs: ["SFX Making","BGM Selection","Editing Process","Mastering","Timeline Building"]
+        },
+        {
+          id: "creator-life", label: "Creator Life", color: "#9B8B4A",
+          subs: ["Day in the Life","Motivation","Challenges","Growth Story","Lessons Learned"]
+        },
+        {
+          id: "yt-short-btm", label: "YouTube Short", color: "#4C8FCF",
+          subs: ["Quick Tip","Behind the Scene Clip","Transformation","Before vs After"]
+        },
+      ]
+    },
+    // Friday — Main Release (Audiobook)
+    audiobook: {
+      label: "Audiobook Release",
+      categories: [
+        {
+          id: "horror-audiobook", label: "Horror", color: "#A84C4C",
+          subs: ["Ghost Story","Supernatural","Psychological","Body Horror","Folk Horror","Cosmic Horror"]
+        },
+        {
+          id: "thriller-audiobook", label: "Thriller", color: "#CF7B4C",
+          subs: ["Psychological Thriller","Crime Thriller","Mystery Thriller","Suspense","Dark Mystery"]
+        },
+        {
+          id: "adventure-audiobook", label: "Adventure", color: "#4CCF7B",
+          subs: ["Quest","Exploration","Historical Adventure","Mythological","Action"]
+        },
+        {
+          id: "fantasy-audiobook", label: "Fantasy", color: "#7B4CCF",
+          subs: ["Dark Fantasy","Magical Realism","Epic Fantasy","Bengali Mythology","Folk Fantasy"]
+        },
+        {
+          id: "romance-audiobook", label: "Romance", color: "#CF4C7B",
+          subs: ["Contemporary","Historical Romance","Dark Romance","Bengali Romance","Short Story"]
+        },
+        {
+          id: "literary-audiobook", label: "Literary / Other", color: "#9BA84C",
+          subs: ["Short Story Collection","Classic Adaptation","Original Story","Anthology","Poetry"]
+        },
+      ]
+    },
+    // Saturday — Flex
+    flex: {
+      label: "Flex Slot",
+      categories: [
+        { id: "community", label: "Community Engagement", color: "#5A6878", subs: ["Q&A","Collab","Shoutout","Poll","Challenge"] },
+        { id: "repost", label: "Repost / Repurpose", color: "#6A7888", subs: ["Best of","Throwback","Clip Remix","Top Comment"] },
+        { id: "experiment", label: "Experiment", color: "#7A8898", subs: ["New Format","New Series Test","Collab Try","Cover Song","Short Story"] },
+        { id: "rest", label: "Rest / Planning", color: "#4A5868", subs: ["Planning Next Week","Content Audit","Analytics Review","No Post"] },
+      ]
+    },
+    // Sunday — Cozy Reset
+    cozy: {
+      label: "Cozy Reset",
+      categories: [
+        {
+          id: "bookstagram-sunday", label: "Bookstagram", color: "#6B9F76",
+          subs: ["Cozy Reading Nook","Aesthetic Flat Lay","Reading Update","Book + Drink","Seasonal Vibe"]
+        },
+        {
+          id: "ig-story-sunday", label: "IG Story", color: "#5B8F66",
+          subs: ["Reading Check-in","Quote Card","Mood Board","Weekly Recap","Recommendation"]
+        },
+        { id: "no-post", label: "Rest Day", color: "#4A5A4F", subs: [] },
+      ]
+    },
+  };
+
+  // ─── TASK PIPELINES ───────────────────────────────────────────────────────
+  const TASKS = {
+    bookstagram: [
+      "Read the book",
+      "Plan the review / angle",
+      "Create AI image / photo",
+      "Write caption / review text",
+      "Edit & finalise image",
+      "Post IG Feed",
+      "Upload IG Story",
+      "Scheduled ✓",
+    ],
+    promo: [
+      "Choose promo angle",
+      "Design poster / AI image",
+      "Create IG Story graphic",
+      "Write anticipation copy",
+      "Upload to YouTube Community",
+      "Scheduled ✓",
+    ],
+    lore: [
+      "Research & script lore drop",
+      "Create AI image / art",
+      "Produce Animated Short",
+      "Write lore caption",
+      "Post IG Feed + Story",
+      "Upload YouTube Short",
+      "Scheduled ✓",
+    ],
+    btm: [
+      "Write BTS script / notes",
+      "Record / capture BTS footage",
+      "Create Animated Poster teaser",
+      "Edit clip / reel",
+      "Post IG Story teaser",
+      "Upload YouTube Short",
+      "Tease Friday's release",
+      "Scheduled ✓",
+    ],
+    audiobook: [
+      "Finalise the story",
+      "Write / revise the script",
+      "Record other voice actors",
+      "Record my own parts",
+      "Build timeline & edit",
+      "Add SFX",
+      "Add BGM",
+      "Master the audio",
+      "Create thumbnail (AI Image)",
+      "Write SEO tags & metadata",
+      "Render & upload full video (YouTube)",
+      "Post IG Feed + Story",
+      "Scheduled ✓",
+    ],
+    flex: [
+      "Decide what to post (or rest)",
+      "Create / source content",
+      "Engage with community",
+      "Plan & prep for next week",
+      "Scheduled ✓",
+    ],
+    cozy: [
+      "Create cozy Bookstagram AI image",
+      "Write warm caption",
+      "Post IG Feed",
+      "Upload IG Story",
+      "Scheduled ✓",
+    ],
+  };
+
+  // ─── DAY META ─────────────────────────────────────────────────────────────
   const START_DATE = new Date(2026, 4, 4);
   const END_DATE   = new Date(2027, 0, 31);
   const WED_SERIES = ["Banglar Bhoot","Wizarding World bonam Banglar Tontro","Shotti Bhoutik Ghotona"];
@@ -815,18 +796,27 @@ self.addEventListener('fetch', e => {
   function isAnniversary(date) {
     return date.getFullYear()===2027 && date.getMonth()===0 && date.getDate()===21;
   }
+
+  // Returns taxonomy key for this day
+  function getTaxonomyKey(date) {
+    const dow = date.getDay();
+    const map = { 0:"cozy", 1:"bookstagram", 2:"promo", 3:"lore", 4:"btm", 5:"audiobook", 6:"flex" };
+    if(dow===4 && isAnniversary(date)) return "btm"; // anniversary still uses btm panel
+    return map[dow];
+  }
+
   function getDayMeta(date) {
     const dow = date.getDay();
     const ann = isAnniversary(date);
     const META = {
-      1:{emoji:"📖",label:"Deep Dive",accent:"#9B72CF",platform:"IG + Threads",format:"AI Image / Short Review",series:"Bookstagram / Deep Dive",tasks:["Create AI image for Bookstagram feed","Write Deep Dive text thread (Threads)","Post IG Feed + Story","Schedule Threads post"]},
-      2:{emoji:"📣",label:"Promo",accent:"#C9A84C",platform:"YouTube + IG",format:"Poster / AI Image",series:"Audiobook Promo / Casual Read",tasks:["Design Community Poster","Create IG Story","Write anticipation copy","Schedule posts"]},
-      3:{emoji:"👻",label:"Lore Drop",accent:"#A84C4C",platform:"IG + YouTube",format:"AI Image / Animated Short",series:"Bookstagram / "+getWedSeries(date),tasks:["Create Bookstagram AI image","Produce Animated Short / Lore video","Write lore caption","Upload YouTube Short"]},
-      4: ann ? {emoji:"🎉",label:"1-Year Anniversary!",accent:"#FFD700",isSpecial:true,platform:"Threads + YouTube",format:"Special Video / BTS",series:"Golpoboliye Obhijatrik — 1 YEAR ANNIVERSARY",tasks:["Prepare anniversary special video","Write anniversary Threads post","Create milestone graphic","Thank the community"]}
-             : {emoji:"🎙️",label:"Behind the Mic",accent:"#4A9F8B",platform:"Threads + YouTube",format:"Text / Animated Poster",series:"Behind the Mic",tasks:["Write BTS text thread (Threads)","Create Animated Poster teaser","Tease Friday's release","Upload YouTube Short"]},
-      5:{emoji:"🎧",label:"MAIN RELEASE",accent:"#C9A84C",isMain:true,platform:"YouTube + IG",format:"Audio / AI Image",series:"Golpoboliye Obhijatrik",tasks:["Finalize & upload full audiobook (YouTube)","Create thumbnail (AI Image)","Write IG Feed + Story caption","Add SEO tags & metadata","Share across all platforms"]},
-      6:{emoji:"🌙",label:"Flex",accent:"#5A6878",isFlex:true,platform:"Flex Slot",format:"Varies",series:"Unscripted (Optional)",tasks:["Optional: post freely","Engage with community","Plan & prep for next week"]},
-      0:{emoji:"☕",label:"Cozy Reset",accent:"#6B9F76",platform:"IG",format:"AI Image",series:"Bookstagram",tasks:["Create cozy Bookstagram AI image","Write warm caption","Post Feed + Story on IG"]},
+      1:{emoji:"📖",label:"Deep Dive",accent:"#9B72CF",platform:"YouTube · IG",format:"AI Image / Review",series:"Bookstagram / Deep Dive"},
+      2:{emoji:"📣",label:"Promo",accent:"#C9A84C",platform:"YouTube · IG",format:"Poster / AI Image",series:"Audiobook Promo"},
+      3:{emoji:"👻",label:"Lore Drop",accent:"#A84C4C",platform:"IG · YouTube Shorts",format:"AI Image / Animated Short",series:"Bookstagram / "+getWedSeries(date)},
+      4: ann ? {emoji:"🎉",label:"1-Year Anniversary!",accent:"#FFD700",isSpecial:true,platform:"YouTube · IG",format:"Special Video / BTS",series:"Golpoboliye Obhijatrik — 1 YEAR ANNIVERSARY"}
+             : {emoji:"🎙️",label:"Behind the Mic",accent:"#4A9F8B",platform:"IG · YouTube Shorts",format:"BTS / Animated Poster",series:"Behind the Mic"},
+      5:{emoji:"🎧",label:"MAIN RELEASE",accent:"#C9A84C",isMain:true,platform:"YouTube · IG",format:"Audiobook / AI Image",series:"Golpoboliye Obhijatrik"},
+      6:{emoji:"🌙",label:"Flex",accent:"#5A6878",isFlex:true,platform:"Flex Slot",format:"Varies",series:"Unscripted (Optional)"},
+      0:{emoji:"☕",label:"Cozy Reset",accent:"#6B9F76",platform:"IG",format:"AI Image",series:"Bookstagram"},
     };
     return META[dow];
   }
@@ -840,7 +830,6 @@ self.addEventListener('fetch', e => {
   function wkStart(d)  { const x=new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate()-x.getDay()); return x; }
   function dateMs(d)   { return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime(); }
   function inRange(d)  { return dateMs(d)>=dateMs(START_DATE) && dateMs(d)<=dateMs(END_DATE); }
-  // FIX: Math.floor instead of Math.round — avoids DST-caused off-by-one errors
   function weekNum(ws) { const base=wkStart(START_DATE); return Math.max(1,Math.floor((dateMs(ws)-dateMs(base))/(7*86400000))+1); }
   function weekLabel(days){
     const a=days[0],b=days[6];
@@ -853,7 +842,8 @@ self.addEventListener('fetch', e => {
     ws: wkStart(START_DATE),
     sel: null,
     entries: {},
-    edit: { title:"", notes:"", tasks:[] },
+    // edit shape: { title, notes, tasks[], categories:[], subcategories:{catId:[sub,...]} }
+    edit: { title:"", notes:"", tasks:[], categories:[], subcategories:{} },
     status: "idle",
     loaded: false,
     view: "week",
@@ -881,6 +871,11 @@ self.addEventListener('fetch', e => {
     state.loaded = true;
   }
 
+  function getDefaultTasks(date) {
+    const tk = getTaxonomyKey(date);
+    return (TASKS[tk] || []).map(() => false);
+  }
+
   function saveEntry() {
     if (!state.sel || !state.loaded) return;
     state.status = "saving";
@@ -903,25 +898,16 @@ self.addEventListener('fetch', e => {
 
   // ─── EXPORT / IMPORT ──────────────────────────────────────────────────────
   function exportData() {
-    const payload = {
-      app: "golpoboliye",
-      version: 1,
-      exported: new Date().toISOString(),
-      entries: state.entries,
-    };
+    const payload = { app:"golpoboliye", version:2, exported:new Date().toISOString(), entries:state.entries };
     const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement("a");
-    a.href     = url;
-    a.download = `golpoboliye-backup-${new Date().toISOString().split("T")[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    a.href=url; a.download=`golpoboliye-backup-${new Date().toISOString().split("T")[0]}.json`;
+    a.click(); URL.revokeObjectURL(url);
     showToast("✓ Exported successfully");
   }
 
-  function importData() {
-    document.getElementById("import-file").click();
-  }
+  function importData() { document.getElementById("import-file").click(); }
 
   document.getElementById("import-file").addEventListener("change", function(e) {
     const file = e.target.files[0];
@@ -930,22 +916,16 @@ self.addEventListener('fetch', e => {
     reader.onload = function(ev) {
       try {
         const payload = JSON.parse(ev.target.result);
-        if(payload.app !== "golpoboliye" || !payload.entries) {
-          showToast("✗ Invalid backup file"); return;
-        }
-        // Merge into localStorage and state
+        if(payload.app !== "golpoboliye" || !payload.entries) { showToast("✗ Invalid backup file"); return; }
         Object.entries(payload.entries).forEach(([k,v]) => {
           storageSet("entry:"+k, JSON.stringify(v));
           state.entries[k] = v;
         });
         render();
         showToast(`✓ Imported ${Object.keys(payload.entries).length} entries`);
-      } catch {
-        showToast("✗ Could not read file");
-      }
+      } catch { showToast("✗ Could not read file"); }
     };
     reader.readAsText(file);
-    // Reset so same file can be re-imported if needed
     this.value = "";
   });
 
@@ -973,7 +953,6 @@ self.addEventListener('fetch', e => {
   function doneFrac(date) {
     const e = state.entries[fmtKey(date)];
     if(!e?.tasks?.length) return 0;
-    // FIX: explicitly check for === true to be robust against non-boolean values
     return e.tasks.filter(t => t === true).length / e.tasks.length;
   }
   function totalLogged() { return Object.keys(state.entries).filter(k=>state.entries[k]?.title).length; }
@@ -989,12 +968,15 @@ self.addEventListener('fetch', e => {
   // ─── SELECTION ────────────────────────────────────────────────────────────
   function selectDay(date) {
     state.sel = date;
-    const meta   = getDayMeta(date);
     const stored = state.entries[fmtKey(date)];
+    const tk = getTaxonomyKey(date);
+    const taskList = TASKS[tk] || [];
     state.edit = {
       title: stored?.title || "",
       notes: stored?.notes || "",
-      tasks: stored?.tasks?.length===meta.tasks.length ? stored.tasks : meta.tasks.map(()=>false),
+      tasks: stored?.tasks?.length === taskList.length ? stored.tasks : taskList.map(()=>false),
+      categories: stored?.categories || [],
+      subcategories: stored?.subcategories || {},
     };
     state.status = "idle";
     render();
@@ -1017,9 +999,7 @@ self.addEventListener('fetch', e => {
     state.ws=nw; state.sel=null; render();
   }
   function goWeek1() { state.ws=wkStart(START_DATE); selectDay(START_DATE); }
-
   function switchView(v) { state.view=v; if(v==="week") state.sel=null; render(); }
-
   function navigateDay(delta) {
     if(!state.sel) return;
     const next = addDays(state.sel, delta);
@@ -1028,16 +1008,14 @@ self.addEventListener('fetch', e => {
     if(!days.find(d=>fmtKey(d)===fmtKey(next))) state.ws=wkStart(next);
     selectDay(next);
   }
-
   function goToWeek(ws) { state.ws=ws; state.sel=null; state.view="week"; render(); }
-  // FIX: set view and ws BEFORE calling selectDay (which calls render),
-  // so only one render happens and view is correct when it fires.
   function goToDay(ws, date) { state.view="week"; state.ws=ws; selectDay(date); }
 
   function clearEntry() {
     if(!state.sel) return;
-    const m = getDayMeta(state.sel);
-    state.edit = { title:"", notes:"", tasks:m.tasks.map(()=>false) };
+    const tk = getTaxonomyKey(state.sel);
+    const taskList = TASKS[tk] || [];
+    state.edit = { title:"", notes:"", tasks:taskList.map(()=>false), categories:[], subcategories:{} };
     scheduleAutoSave();
     render();
   }
@@ -1046,6 +1024,36 @@ self.addEventListener('fetch', e => {
     const t = [...state.edit.tasks];
     t[i] = !t[i];
     state.edit.tasks = t;
+    scheduleAutoSave();
+    renderDetailBody();
+  }
+
+  function toggleCategory(catId) {
+    const cats = [...(state.edit.categories||[])];
+    const idx = cats.indexOf(catId);
+    if(idx>=0) {
+      cats.splice(idx,1);
+      // also remove subcategories for this cat
+      const subs = {...(state.edit.subcategories||{})};
+      delete subs[catId];
+      state.edit.subcategories = subs;
+    } else {
+      cats.push(catId);
+    }
+    state.edit.categories = cats;
+    scheduleAutoSave();
+    renderDetailBody();
+  }
+
+  function toggleSubcategory(catId, sub) {
+    const subs = {...(state.edit.subcategories||{})};
+    if(!subs[catId]) subs[catId] = [];
+    const arr = [...subs[catId]];
+    const idx = arr.indexOf(sub);
+    if(idx>=0) arr.splice(idx,1);
+    else arr.push(sub);
+    subs[catId] = arr;
+    state.edit.subcategories = subs;
     scheduleAutoSave();
     renderDetailBody();
   }
@@ -1059,7 +1067,6 @@ self.addEventListener('fetch', e => {
     Object.entries(attrs).forEach(([k,v]) => {
       if(k==="style" && typeof v==="object") Object.assign(e.style, v);
       else if(k==="class") e.className=v;
-      // FIX: use addEventListener for events to avoid camelCase lowercasing issues
       else if(k.startsWith("on") && typeof v==="function") e.addEventListener(k.slice(2).toLowerCase(), v);
       else if(typeof v === "boolean") { if(v) e.setAttribute(k,""); else e.removeAttribute(k); }
       else e.setAttribute(k,v);
@@ -1107,14 +1114,8 @@ self.addEventListener('fetch', e => {
           },
           onclick: () => { if(ok) selectDay(date); },
         });
-        if(frac>0) {
-          const bar = div({class:"comp-bar", style:{width:`${frac*100}%`,background:m?.accent||"var(--gold)"}});
-          cell.appendChild(bar);
-        }
-        if(allDone) {
-          const glow = div({class:"done-glow", style:{background:`${m?.accent}08`}});
-          cell.appendChild(glow);
-        }
+        if(frac>0) cell.appendChild(div({class:"comp-bar", style:{width:`${frac*100}%`,background:m?.accent||"var(--gold)"}}));
+        if(allDone) cell.appendChild(div({class:"done-glow", style:{background:`${m?.accent}08`}}));
         cell.appendChild(span({class:"day-short"},DAY_S[date.getDay()]));
         cell.appendChild(div({class:"day-num"+(isSel?" selected":""), style:{color:isSel?(m?.accent||"var(--gold)"):"var(--text)"}},date.getDate()));
         if(m) {
@@ -1127,14 +1128,64 @@ self.addEventListener('fetch', e => {
     );
   }
 
+  function buildCategorySelector() {
+    if(!state.sel) return div({});
+    const tk = getTaxonomyKey(state.sel);
+    const tax = TAXONOMY[tk];
+    if(!tax) return div({});
+    const meta = getDayMeta(state.sel);
+    const selCats = state.edit.categories || [];
+    const selSubs = state.edit.subcategories || {};
+
+    const wrap = div({class:"cat-section"});
+    wrap.appendChild(el("label",{class:"field-label"},"Category"));
+
+    // Category chips
+    const catRow = div({class:"cat-row"});
+    tax.categories.forEach(cat => {
+      const isActive = selCats.includes(cat.id);
+      const chip = btn({
+        class:"cat-chip"+(isActive?" active":""),
+        style: isActive ? {background:cat.color,borderColor:cat.color,color:"#fff"} : {},
+        onclick: () => toggleCategory(cat.id),
+      }, cat.label);
+      catRow.appendChild(chip);
+    });
+    wrap.appendChild(catRow);
+
+    // Subcategory groups for active categories
+    selCats.forEach(catId => {
+      const cat = tax.categories.find(c=>c.id===catId);
+      if(!cat || !cat.subs || cat.subs.length===0) return;
+      const group = div({class:"subcat-group"});
+      group.appendChild(div({class:"subcat-label"},`${cat.label} — Genres / Types`));
+      const subRow = div({class:"subcat-row"});
+      cat.subs.forEach(sub => {
+        const isSubActive = (selSubs[catId]||[]).includes(sub);
+        const chip = btn({
+          class:"subcat-chip"+(isSubActive?" active":""),
+          style: isSubActive ? {color:cat.color,borderColor:cat.color} : {},
+          onclick: () => toggleSubcategory(catId, sub),
+        }, sub);
+        subRow.appendChild(chip);
+      });
+      group.appendChild(subRow);
+      wrap.appendChild(group);
+    });
+
+    return wrap;
+  }
+
   function buildDetailBody() {
     if(!state.sel) return div({});
-    const meta    = getDayMeta(state.sel);
+    const tk = getTaxonomyKey(state.sel);
+    const taskList = TASKS[tk] || [];
     const doneCnt = state.edit.tasks.filter(t => t === true).length;
-    const pct     = meta.tasks.length>0?(doneCnt/meta.tasks.length)*100:0;
+    const pct = taskList.length>0?(doneCnt/taskList.length)*100:0;
+    const meta = getDayMeta(state.sel);
 
     return div({},
-      // Title field
+      // Title
       div({class:"mb-20"},
         el("label",{class:"field-label"},"Episode / Post Title"),
         el("input",{
@@ -1147,11 +1198,15 @@ self.addEventListener('fetch', e => {
           onblur:  e => e.target.style.borderColor="var(--border)",
         })
       ),
+
+      // Categories + Subcategories
+      buildCategorySelector(),
+
       // Tasks
       div({class:"mb-20"},
-        el("label",{class:"field-label"},"Tasks"),
+        el("label",{class:"field-label"},"Production Pipeline"),
         div({class:"task-list"},
-          ...meta.tasks.map((task,i) => {
+          ...taskList.map((task,i) => {
             const done = state.edit.tasks[i] === true;
             return div({
               class:"task-row"+(done?" done":""),
@@ -1175,17 +1230,18 @@ self.addEventListener('fetch', e => {
             div({class:"task-progress-fill",style:{width:`${pct}%`,background:meta.accent}})
           ),
           div({class:"task-progress-label"},
-            `${doneCnt}/${meta.tasks.length}`,
-            doneCnt===meta.tasks.length && meta.tasks.length>0
+            `${doneCnt}/${taskList.length}`,
+            doneCnt===taskList.length && taskList.length>0
               ? span({class:"all-done-badge"},"ALL DONE") : null
           )
         )
       ),
+
       // Notes
       div({class:"mb-20"},
         el("label",{class:"field-label"},"Notes / Script Ideas / References"),
         el("textarea",{
-          placeholder:"Jot down script ideas, lore references, thumbnail concepts, SEO notes...",
+          placeholder:"Script ideas, lore references, thumbnail concepts, SEO notes...",
           rows:5,
           style:{borderColor:"var(--border)"},
           oninput: e=>updateNotes(e.target.value),
@@ -1193,6 +1249,7 @@ self.addEventListener('fetch', e => {
           onblur:  e=>e.target.style.borderColor="var(--border)",
         },state.edit.notes)
       ),
+
       // Footer
       div({class:"detail-footer"},
         div({class:"autosave-hint"},"Auto-saved after 1.2s"),
@@ -1243,6 +1300,12 @@ self.addEventListener('fetch', e => {
           const m    = getDayMeta(date);
           const e    = state.entries[fmtKey(date)];
           const frac = doneFrac(date);
+          // Collect active category labels for display
+          const selCats = e?.categories || [];
+          const tk = getTaxonomyKey(date);
+          const tax = TAXONOMY[tk];
+          const catLabels = selCats.map(cid => tax?.categories.find(c=>c.id===cid)?.label).filter(Boolean);
+
           return div({
             class:"week-row",
             onclick:()=>selectDay(date),
@@ -1259,6 +1322,9 @@ self.addEventListener('fetch', e => {
                 e?.title||"Untitled — click to fill in"
               ),
               div({class:"week-row-series"},m.series),
+              catLabels.length>0 ? div({class:"week-row-tags"},
+                ...catLabels.map(l=>span({class:"week-tag",style:{color:m.accent}},l))
+              ) : null,
             ),
             div({class:"week-row-label",style:{color:m.isMain||m.isSpecial?m.accent:"var(--dim)",fontWeight:m.isMain?700:400}},m.label),
             frac>0 ? div({class:"dot-indicator",style:{background:frac===1?"#4A9F6B":m.accent}}) : null,
@@ -1335,9 +1401,7 @@ self.addEventListener('fetch', e => {
   function buildInstallBanner() {
     if(!state.showInstallBanner) return null;
     return div({id:"install-banner"},
-      div({class:"install-text"},
-        "Add ",span({},"গল্পবলিয়ে")," to home screen"
-      ),
+      div({class:"install-text"},"Add ",span({},"গল্পবলিয়ে")," to home screen"),
       div({class:"install-actions"},
         btn({class:"dismiss-btn",onclick:dismissInstall},"Later"),
         btn({class:"install-btn",onclick:triggerInstall},"Install"),
@@ -1355,7 +1419,6 @@ self.addEventListener('fetch', e => {
 
     root.innerHTML = "";
 
-    // Header
     const header = el("header",{},
       div({class:"header-eyebrow"},"Content Journal · গল্পবলিয়ে অভিযাত্রিক"),
       el("h1",{},"গল্পবলিয়ে অভিযাত্রিক"),
@@ -1374,8 +1437,6 @@ self.addEventListener('fetch', e => {
       )
     );
     root.appendChild(header);
-
-    // Data toolbar (always visible)
     root.appendChild(buildDataToolbar());
 
     if(state.view==="week") {
@@ -1397,7 +1458,6 @@ self.addEventListener('fetch', e => {
       root.appendChild(buildOverview());
     }
 
-    // Legend
     root.appendChild(div({class:"legend"},
       div({class:"legend-title"},"Series Legend"),
       div({class:"legend-items"},
@@ -1438,10 +1498,7 @@ self.addEventListener('fetch', e => {
       });
     }
   }
-  function dismissInstall() {
-    state.showInstallBanner = false;
-    render();
-  }
+  function dismissInstall() { state.showInstallBanner = false; render(); }
 
   // ─── BOOT ─────────────────────────────────────────────────────────────────
   loadEntries();
