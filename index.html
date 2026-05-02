@@ -268,16 +268,17 @@
     textarea { padding: 11px 14px; font-size: 15px; font-family: 'EB Garamond', serif; line-height: 1.7; resize: vertical; min-height: 110px; }
     input::placeholder, textarea::placeholder { color: var(--dim); font-style: italic; }
 
-    /* ── Category / Tag selectors ── */
-    .cat-section { margin-bottom: 20px; }
-    .cat-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-    .cat-chip {
+    /* ── Content type chip selector ── */
+    .content-slots-section { margin-bottom: 22px; }
+    .slot-chips-label { display: block; font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); margin-bottom: 9px; }
+    .slot-chips-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+    .slot-chip {
       font-family: 'Space Mono', monospace;
       font-size: 8px;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 5px 10px;
-      border-radius: 4px;
+      padding: 6px 11px;
+      border-radius: 5px;
       border: 1px solid var(--border);
       background: transparent;
       color: var(--muted);
@@ -285,23 +286,56 @@
       transition: all 0.15s;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
+      white-space: nowrap;
     }
-    .cat-chip.active {
-      background: var(--gold);
-      border-color: var(--gold);
-      color: var(--bg);
+    .slot-chip.active { color: #fff; }
+
+    /* ── Slot expanded panel ── */
+    .slot-panel {
+      margin-top: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 14px 14px;
+      animation: fadeIn 0.18s ease;
     }
-    .cat-chip.accent-active {
-      color: #fff;
+    .slot-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 14px;
     }
-    .subcat-group { margin-top: 8px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; }
-    .subcat-label { font-family: 'Space Mono', monospace; font-size: 7px; color: var(--dim); letter-spacing: 0.2em; margin-bottom: 7px; text-transform: uppercase; }
-    .subcat-row { display: flex; flex-wrap: wrap; gap: 5px; }
-    .subcat-chip {
+    .slot-panel-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .slot-scheduled-badge {
       font-family: 'Space Mono', monospace;
       font-size: 7px;
-      letter-spacing: 0.08em;
-      padding: 4px 8px;
+      color: #4A9F6B;
+      letter-spacing: 0.1em;
+      margin-left: auto;
+    }
+
+    /* Sub-options within a slot */
+    .slot-subfield { margin-bottom: 11px; }
+    .slot-subfield-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 7px;
+      color: var(--dim);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .slot-options-row { display: flex; flex-wrap: wrap; gap: 5px; }
+    .slot-option-chip {
+      font-family: 'Space Mono', monospace;
+      font-size: 7px;
+      letter-spacing: 0.07em;
+      padding: 4px 9px;
       border-radius: 3px;
       border: 1px solid var(--dim);
       background: transparent;
@@ -311,7 +345,90 @@
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
-    .subcat-chip.active { border-color: currentColor; color: inherit; background: transparent; opacity: 1; }
+    .slot-option-chip.active { opacity: 1; }
+
+    /* Upload date + scheduled row */
+    .slot-meta-row {
+      display: flex;
+      gap: 14px;
+      align-items: flex-end;
+      margin-top: 2px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .slot-date-wrap { flex: 1; min-width: 148px; }
+    .slot-date-label {
+      display: block;
+      font-family: 'Space Mono', monospace;
+      font-size: 7px;
+      color: var(--dim);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .slot-date-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--text);
+      outline: none;
+      padding: 8px 11px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      -webkit-appearance: none;
+      transition: border-color 0.15s;
+      cursor: pointer;
+    }
+    .slot-date-input::-webkit-calendar-picker-indicator { filter: invert(0.4); cursor: pointer; }
+    .slot-sched-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 4px;
+    }
+    input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--gold);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .slot-sched-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    /* Analytics */
+    .slot-analytics-label {
+      display: block;
+      font-family: 'Space Mono', monospace;
+      font-size: 7px;
+      color: var(--dim);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .slot-analytics {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--text);
+      outline: none;
+      padding: 9px 11px;
+      font-family: 'EB Garamond', serif;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+      min-height: 72px;
+      transition: border-color 0.15s;
+    }
+    .slot-analytics::placeholder { color: var(--dim); font-style: italic; }
 
     /* ── Task list ── */
     .task-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 10px; }
@@ -406,8 +523,16 @@
     .week-row-series { font-family: 'Space Mono', monospace; font-size: 8px; color: var(--dim); margin-top: 2px; }
     .week-row-label { font-family: 'Space Mono', monospace; font-size: 8px; flex-shrink: 0; }
     .dot-indicator { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-    .week-row-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px; }
-    .week-tag { font-family: 'Space Mono', monospace; font-size: 6px; padding: 1px 5px; border-radius: 2px; border: 1px solid currentColor; opacity: 0.7; }
+    .week-row-slots { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+    .week-slot-badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 6px;
+      padding: 2px 5px;
+      border-radius: 2px;
+      border: 1px solid currentColor;
+      opacity: 0.75;
+      white-space: nowrap;
+    }
 
     /* ── Overview ── */
     .overview-title { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 18px; text-align: center; }
@@ -439,6 +564,7 @@
     .mb-14 { margin-bottom: 14px; }
     .mb-18 { margin-bottom: 18px; }
     .mb-20 { margin-bottom: 20px; }
+    .mb-12 { margin-bottom: 12px; }
 
     /* ── Install banner ── */
     #install-banner {
@@ -540,7 +666,7 @@
   // ─── SERVICE WORKER ───────────────────────────────────────────────────────
   if ('serviceWorker' in navigator) {
     const swCode = `
-const CACHE = 'golpoboliye-v2';
+const CACHE = 'golpoboliye-v3';
 const ASSETS = [self.location.href];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -561,159 +687,109 @@ self.addEventListener('fetch', e => {
     navigator.serviceWorker.register(swUrl).catch(() => {});
   }
 
-  // ─── CATEGORY TAXONOMY ────────────────────────────────────────────────────
-  // Each content type defines: categories (top-level), and for each category optional subcategories
-  const TAXONOMY = {
-    // Monday — Bookstagram / Deep Dive
-    bookstagram: {
-      label: "Bookstagram",
-      categories: [
+  // ─── CONTENT TYPES ────────────────────────────────────────────────────────
+  // These 7 types are universal — any day can hold any combination.
+  const CONTENT_TYPES = [
+    {
+      id: "yt-audiobook",
+      label: "YT Audiobook",
+      icon: "🎧",
+      color: "#C9A84C",
+      fields: []
+    },
+    {
+      id: "yt-shorts-promo",
+      label: "YT Shorts — Promo",
+      icon: "📣",
+      color: "#CF7B4C",
+      fields: [
         {
-          id: "review", label: "Review", color: "#9B72CF",
-          subs: ["Horror","Thriller","Mystery","Adventure","Fantasy","Romance","Literary Fiction","Historical","Sci-Fi","Bengali Literature","Contemporary"]
-        },
-        {
-          id: "tbr", label: "TBR", color: "#7B9ECF",
-          subs: ["Horror","Thriller","Mystery","Adventure","Fantasy","Romance","Literary Fiction","Historical","Sci-Fi","Bengali Literature","Contemporary"]
-        },
-        {
-          id: "currently-reading", label: "Currently Reading", color: "#CF9B72",
-          subs: ["Horror","Thriller","Mystery","Adventure","Fantasy","Romance","Literary Fiction","Historical","Sci-Fi","Bengali Literature","Contemporary"]
-        },
-        {
-          id: "book-haul", label: "Book Haul", color: "#72CF9B",
-          subs: ["Physical Books","eBooks","Bengali Books","English Books","Used Books","New Arrivals"]
-        },
-        {
-          id: "ig-story", label: "IG Story", color: "#CF7B9B",
-          subs: ["Poll","Quote Card","Behind the Pages","Reading Update","Recommendation"]
-        },
+          key: "genre",
+          label: "Genre",
+          multi: false,
+          options: ["Horror","Thriller","Adventure","Fantasy","Romance","Author Series","Folklore","Mythology","Dark Comedy","Literary"]
+        }
       ]
     },
-    // Tuesday — Audiobook Promo
-    promo: {
-      label: "Promo",
-      categories: [
+    {
+      id: "yt-shorts-info",
+      label: "YT Shorts — Info Series",
+      icon: "📚",
+      color: "#9B72CF",
+      fields: []
+    },
+    {
+      id: "yt-shorts-bts",
+      label: "YT Shorts — BTS",
+      icon: "🎙️",
+      color: "#4A9F8B",
+      fields: []
+    },
+    {
+      id: "insta-review",
+      label: "Insta Book Review",
+      icon: "📖",
+      color: "#A84C4C",
+      fields: [
         {
-          id: "audiobook-promo", label: "Audiobook Promo", color: "#C9A84C",
-          subs: ["Horror","Thriller","Mystery","Adventure","Fantasy","Romance","Bengali Folklore","Historical","Sci-Fi","Contemporary"]
+          key: "language",
+          label: "Language",
+          multi: false,
+          options: ["Bengali","English"]
         },
         {
-          id: "coming-soon", label: "Coming Soon Teaser", color: "#CF9B4C",
-          subs: ["Horror","Thriller","Mystery","Adventure","Fantasy","Romance","Bengali Folklore"]
-        },
-        {
-          id: "yt-community", label: "YouTube Community Post", color: "#CF4C4C",
-          subs: ["Milestone","Poll","Announcement","Behind the Mic","Series Teaser"]
-        },
-        {
-          id: "ig-reel-promo", label: "IG Reel Promo", color: "#4CCFCF",
-          subs: ["Audio Clip","Trailer","Reading Teaser","Mood Clip"]
-        },
+          key: "genre",
+          label: "Genre",
+          multi: false,
+          options: ["Horror","Thriller","Mystery","Literary Fiction","Bengali Classic","Contemporary","Fantasy","Sci-Fi","Historical"]
+        }
       ]
     },
-    // Wednesday — Lore Drop
-    lore: {
-      label: "Lore Drop",
-      categories: [
+    {
+      id: "insta-story",
+      label: "Insta Story",
+      icon: "📱",
+      color: "#4C8FCF",
+      fields: [
         {
-          id: "banglar-bhoot", label: "Banglar Bhoot", color: "#A84C4C",
-          subs: ["Petni","Shakchunni","Brahmodaitya","Mamdo Bhoot","Mechho Bhoot","Nishi","Kanabhulo","New Creature"]
-        },
-        {
-          id: "wizarding-world", label: "Wizarding World vs Banglar Tontro", color: "#7B4CCF",
-          subs: ["Spell Comparison","Magical Creature","Ritual","Folklore Lore","Character Lore","World-building"]
-        },
-        {
-          id: "shotti-bhoutik", label: "Shotti Bhoutik Ghotona", color: "#CF6B4C",
-          subs: ["Haunting","Possession","True Crime","Urban Legend","Eyewitness Account","Place Lore"]
-        },
-        {
-          id: "yt-short-lore", label: "YouTube Short", color: "#4C8FCF",
-          subs: ["Animated Lore","Narrated Short","Quick Fact","Myth vs Fact"]
-        },
+          key: "variant",
+          label: "Type",
+          multi: false,
+          options: ["To Be Read","Currently Reading","Book Haul"]
+        }
       ]
     },
-    // Thursday — Behind the Mic
-    btm: {
-      label: "Behind the Mic",
-      categories: [
+    {
+      id: "insta-reel",
+      label: "Insta Reel",
+      icon: "🎬",
+      color: "#CF4C7B",
+      fields: [
         {
-          id: "recording-bts", label: "Recording BTS", color: "#4A9F8B",
-          subs: ["Studio Setup","Voice Warm-up","Bloopers","Mic Tips","Recording Process"]
-        },
-        {
-          id: "production-bts", label: "Production BTS", color: "#4A7F9B",
-          subs: ["SFX Making","BGM Selection","Editing Process","Mastering","Timeline Building"]
-        },
-        {
-          id: "creator-life", label: "Creator Life", color: "#9B8B4A",
-          subs: ["Day in the Life","Motivation","Challenges","Growth Story","Lessons Learned"]
-        },
-        {
-          id: "yt-short-btm", label: "YouTube Short", color: "#4C8FCF",
-          subs: ["Quick Tip","Behind the Scene Clip","Transformation","Before vs After"]
-        },
+          key: "variant",
+          label: "Type",
+          multi: false,
+          options: ["To Be Read","Currently Reading","Book Haul"]
+        }
       ]
     },
-    // Friday — Main Release (Audiobook)
-    audiobook: {
-      label: "Audiobook Release",
-      categories: [
-        {
-          id: "horror-audiobook", label: "Horror", color: "#A84C4C",
-          subs: ["Ghost Story","Supernatural","Psychological","Body Horror","Folk Horror","Cosmic Horror"]
-        },
-        {
-          id: "thriller-audiobook", label: "Thriller", color: "#CF7B4C",
-          subs: ["Psychological Thriller","Crime Thriller","Mystery Thriller","Suspense","Dark Mystery"]
-        },
-        {
-          id: "adventure-audiobook", label: "Adventure", color: "#4CCF7B",
-          subs: ["Quest","Exploration","Historical Adventure","Mythological","Action"]
-        },
-        {
-          id: "fantasy-audiobook", label: "Fantasy", color: "#7B4CCF",
-          subs: ["Dark Fantasy","Magical Realism","Epic Fantasy","Bengali Mythology","Folk Fantasy"]
-        },
-        {
-          id: "romance-audiobook", label: "Romance", color: "#CF4C7B",
-          subs: ["Contemporary","Historical Romance","Dark Romance","Bengali Romance","Short Story"]
-        },
-        {
-          id: "literary-audiobook", label: "Literary / Other", color: "#9BA84C",
-          subs: ["Short Story Collection","Classic Adaptation","Original Story","Anthology","Poetry"]
-        },
-      ]
-    },
-    // Saturday — Flex
-    flex: {
-      label: "Flex Slot",
-      categories: [
-        { id: "community", label: "Community Engagement", color: "#5A6878", subs: ["Q&A","Collab","Shoutout","Poll","Challenge"] },
-        { id: "repost", label: "Repost / Repurpose", color: "#6A7888", subs: ["Best of","Throwback","Clip Remix","Top Comment"] },
-        { id: "experiment", label: "Experiment", color: "#7A8898", subs: ["New Format","New Series Test","Collab Try","Cover Song","Short Story"] },
-        { id: "rest", label: "Rest / Planning", color: "#4A5868", subs: ["Planning Next Week","Content Audit","Analytics Review","No Post"] },
-      ]
-    },
-    // Sunday — Cozy Reset
-    cozy: {
-      label: "Cozy Reset",
-      categories: [
-        {
-          id: "bookstagram-sunday", label: "Bookstagram", color: "#6B9F76",
-          subs: ["Cozy Reading Nook","Aesthetic Flat Lay","Reading Update","Book + Drink","Seasonal Vibe"]
-        },
-        {
-          id: "ig-story-sunday", label: "IG Story", color: "#5B8F66",
-          subs: ["Reading Check-in","Quote Card","Mood Board","Weekly Recap","Recommendation"]
-        },
-        { id: "no-post", label: "Rest Day", color: "#4A5A4F", subs: [] },
-      ]
-    },
-  };
+  ];
 
-  // ─── TASK PIPELINES ───────────────────────────────────────────────────────
+  // Helper: create a default slot state for a content type
+  function defaultSlot(ct) {
+    const s = { active: false, scheduled: false, analytics: "" };
+    ct.fields.forEach(f => { s[f.key] = ""; });
+    return s;
+  }
+
+  // Helper: full default slots object
+  function defaultSlots() {
+    const s = {};
+    CONTENT_TYPES.forEach(ct => { s[ct.id] = defaultSlot(ct); });
+    return s;
+  }
+
+  // ─── PRODUCTION TASK PIPELINES (per day-of-week) ──────────────────────────
   const TASKS = {
     bookstagram: [
       "Read the book",
@@ -785,7 +861,6 @@ self.addEventListener('fetch', e => {
 
   // ─── DAY META ─────────────────────────────────────────────────────────────
   const START_DATE = new Date(2026, 4, 4);
-  // No END_DATE — journal runs indefinitely from START_DATE
   const WED_SERIES = ["Banglar Bhoot","Wizarding World bonam Banglar Tontro","Shotti Bhoutik Ghotona"];
 
   function getWedSeries(date) {
@@ -796,15 +871,11 @@ self.addEventListener('fetch', e => {
   function isAnniversary(date) {
     return date.getFullYear()===2027 && date.getMonth()===0 && date.getDate()===21;
   }
-
-  // Returns taxonomy key for this day
   function getTaxonomyKey(date) {
     const dow = date.getDay();
     const map = { 0:"cozy", 1:"bookstagram", 2:"promo", 3:"lore", 4:"btm", 5:"audiobook", 6:"flex" };
-    if(dow===4 && isAnniversary(date)) return "btm"; // anniversary still uses btm panel
     return map[dow];
   }
-
   function getDayMeta(date) {
     const dow = date.getDay();
     const ann = isAnniversary(date);
@@ -843,8 +914,8 @@ self.addEventListener('fetch', e => {
     ws: (function(){ const cw=wkStart(new Date()); return dateMs(cw)>=dateMs(wkStart(START_DATE))?cw:wkStart(START_DATE); })(),
     sel: null,
     entries: {},
-    // edit shape: { title, notes, tasks[], categories:[], subcategories:{catId:[sub,...]} }
-    edit: { title:"", notes:"", tasks:[], categories:[], subcategories:{} },
+    // edit shape: { title, notes, tasks[], slots:{ctId:{active,fields...,uploadDate,scheduled,analytics}} }
+    edit: { title:"", notes:"", tasks:[], slots: defaultSlots() },
     status: "idle",
     loaded: false,
     view: "week",
@@ -900,7 +971,7 @@ self.addEventListener('fetch', e => {
 
   // ─── EXPORT / IMPORT ──────────────────────────────────────────────────────
   function exportData() {
-    const payload = { app:"golpoboliye", version:2, exported:new Date().toISOString(), entries:state.entries };
+    const payload = { app:"golpoboliye", version:3, exported:new Date().toISOString(), entries:state.entries };
     const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement("a");
@@ -961,12 +1032,16 @@ self.addEventListener('fetch', e => {
   function totalDone()   { return Object.values(state.entries).reduce((a,e)=>a+(e?.tasks?.filter(t=>t===true).length||0),0); }
   function totalTasks()  { return Object.values(state.entries).reduce((a,e)=>a+(e?.tasks?.length||0),0); }
   function overallPct()  { const t=totalTasks(); return t>0?Math.round((totalDone()/t)*100):0; }
-  function allWeeks(extraWeeks)    {
-    // Show from START_DATE up to (8 + extraWeeks) ahead of today — always growing
+  function allWeeks(extraWeeks) {
     const horizon = addDays(wkStart(new Date()), (8 + (extraWeeks||0))*7);
     const ws=[]; let cur=wkStart(START_DATE);
     while(dateMs(cur)<=dateMs(horizon)){ ws.push(new Date(cur)); cur=addDays(cur,7); }
     return ws;
+  }
+  // Get active slots from a saved entry
+  function getActiveSlots(entry) {
+    if (!entry?.slots) return [];
+    return CONTENT_TYPES.filter(ct => entry.slots[ct.id]?.active);
   }
 
   // ─── SELECTION ────────────────────────────────────────────────────────────
@@ -975,12 +1050,23 @@ self.addEventListener('fetch', e => {
     const stored = state.entries[fmtKey(date)];
     const tk = getTaxonomyKey(date);
     const taskList = TASKS[tk] || [];
+
+    // Merge stored slots with defaults (handles old entries + missing keys)
+    const defSlots = defaultSlots();
+    const mergedSlots = {...defSlots};
+    if (stored?.slots) {
+      CONTENT_TYPES.forEach(ct => {
+        if (stored.slots[ct.id]) {
+          mergedSlots[ct.id] = { ...defSlots[ct.id], ...stored.slots[ct.id] };
+        }
+      });
+    }
+
     state.edit = {
       title: stored?.title || "",
       notes: stored?.notes || "",
       tasks: stored?.tasks?.length === taskList.length ? stored.tasks : taskList.map(()=>false),
-      categories: stored?.categories || [],
-      subcategories: stored?.subcategories || {},
+      slots: mergedSlots,
     };
     state.status = "idle";
     render();
@@ -1018,7 +1104,7 @@ self.addEventListener('fetch', e => {
     if(!state.sel) return;
     const tk = getTaxonomyKey(state.sel);
     const taskList = TASKS[tk] || [];
-    state.edit = { title:"", notes:"", tasks:taskList.map(()=>false), categories:[], subcategories:{} };
+    state.edit = { title:"", notes:"", tasks:taskList.map(()=>false), slots:defaultSlots() };
     scheduleAutoSave();
     render();
   }
@@ -1031,34 +1117,30 @@ self.addEventListener('fetch', e => {
     renderDetailBody();
   }
 
-  function toggleCategory(catId) {
-    const cats = [...(state.edit.categories||[])];
-    const idx = cats.indexOf(catId);
-    if(idx>=0) {
-      cats.splice(idx,1);
-      // also remove subcategories for this cat
-      const subs = {...(state.edit.subcategories||{})};
-      delete subs[catId];
-      state.edit.subcategories = subs;
-    } else {
-      cats.push(catId);
-    }
-    state.edit.categories = cats;
+  // ─── SLOT FUNCTIONS ───────────────────────────────────────────────────────
+  function toggleSlot(ctId) {
+    const ct = CONTENT_TYPES.find(c => c.id === ctId);
+    if (!ct) return;
+    const slots = JSON.parse(JSON.stringify(state.edit.slots || defaultSlots()));
+    const cur = slots[ctId] || defaultSlot(ct);
+    slots[ctId] = { ...cur, active: !cur.active };
+    state.edit.slots = slots;
     scheduleAutoSave();
     renderDetailBody();
   }
 
-  function toggleSubcategory(catId, sub) {
-    const subs = {...(state.edit.subcategories||{})};
-    if(!subs[catId]) subs[catId] = [];
-    const arr = [...subs[catId]];
-    const idx = arr.indexOf(sub);
-    if(idx>=0) arr.splice(idx,1);
-    else arr.push(sub);
-    subs[catId] = arr;
-    state.edit.subcategories = subs;
+  function updateSlotField(ctId, field, value) {
+    const ct = CONTENT_TYPES.find(c => c.id === ctId);
+    if (!ct) return;
+    const slots = JSON.parse(JSON.stringify(state.edit.slots || defaultSlots()));
+    const cur = slots[ctId] || defaultSlot(ct);
+    slots[ctId] = { ...cur, [field]: value };
+    state.edit.slots = slots;
     scheduleAutoSave();
-    renderDetailBody();
+    // Partial re-render: only update the specific slot panel
+    const body = document.getElementById("detail-body");
+    if (!body || !state.sel) return;
+    body.replaceChildren(buildDetailBody());
   }
 
   function updateTitle(val) { state.edit.title = val; scheduleAutoSave(); }
@@ -1097,88 +1179,106 @@ self.addEventListener('fetch', e => {
     body.replaceChildren(buildDetailBody());
   }
 
-  // ─── BUILD FUNCTIONS ──────────────────────────────────────────────────────
-  function buildDayStrip() {
-    const days = getDays();
-    return div({class:"day-strip"},
-      ...days.map(date => {
-        const ok    = inRange(date);
-        const key   = fmtKey(date);
-        const m     = ok?getDayMeta(date):null;
-        const frac  = doneFrac(date);
-        const isSel = state.sel && fmtKey(state.sel)===key;
-        const e     = state.entries[key];
-        const allDone = frac===1 && e?.tasks?.length>0;
-        const cell = div({
-          class:"day-cell"+(ok?"":" out-of-range")+(isSel?" selected":""),
-          style: {
-            border:`1px solid ${isSel?(m?.accent||"var(--gold)"):(allDone?"#2A3A2A":"var(--border)")}`,
-            boxShadow: isSel?`0 0 0 1px ${m?.accent||"var(--gold)"}30`:"none",
-          },
-          onclick: () => { if(ok) selectDay(date); },
-        });
-        if(frac>0) cell.appendChild(div({class:"comp-bar", style:{width:`${frac*100}%`,background:m?.accent||"var(--gold)"}}));
-        if(allDone) cell.appendChild(div({class:"done-glow", style:{background:`${m?.accent}08`}}));
-        cell.appendChild(span({class:"day-short"},DAY_S[date.getDay()]));
-        cell.appendChild(div({class:"day-num"+(isSel?" selected":""), style:{color:isSel?(m?.accent||"var(--gold)"):"var(--text)"}},date.getDate()));
-        if(m) {
-          cell.appendChild(div({class:"day-emoji"},m.emoji));
-          cell.appendChild(div({class:"day-label"+(m.isMain?" main":"")+(m.isSpecial?" special":"")},m.label));
-          if(e?.title) cell.appendChild(div({class:"day-titled"},"✓ "+e.title));
-        }
-        return cell;
-      })
-    );
-  }
-
-  function buildCategorySelector() {
-    if(!state.sel) return div({});
-    const tk = getTaxonomyKey(state.sel);
-    const tax = TAXONOMY[tk];
-    if(!tax) return div({});
+  // ─── BUILD: CONTENT SLOTS ─────────────────────────────────────────────────
+  function buildContentSlots() {
+    if (!state.sel) return div({});
     const meta = getDayMeta(state.sel);
-    const selCats = state.edit.categories || [];
-    const selSubs = state.edit.subcategories || {};
+    const slots = state.edit.slots || defaultSlots();
 
-    const wrap = div({class:"cat-section"});
-    wrap.appendChild(el("label",{class:"field-label"},"Category"));
+    const wrap = div({class:"content-slots-section"});
+    wrap.appendChild(el("label", {class:"slot-chips-label"}, "Content for this day"));
 
-    // Category chips
-    const catRow = div({class:"cat-row"});
-    tax.categories.forEach(cat => {
-      const isActive = selCats.includes(cat.id);
+    // Row of content type selector chips
+    const chipRow = div({class:"slot-chips-row"});
+    CONTENT_TYPES.forEach(ct => {
+      const slot = slots[ct.id] || defaultSlot(ct);
+      const isActive = !!slot.active;
       const chip = btn({
-        class:"cat-chip"+(isActive?" active":""),
-        style: isActive ? {background:cat.color,borderColor:cat.color,color:"#fff"} : {},
-        onclick: () => toggleCategory(cat.id),
-      }, cat.label);
-      catRow.appendChild(chip);
+        class: "slot-chip" + (isActive ? " active" : ""),
+        style: isActive
+          ? { background: ct.color, borderColor: ct.color, color: "#fff" }
+          : { borderColor: "var(--border)" },
+        onclick: () => toggleSlot(ct.id),
+      }, ct.icon + "\u00A0" + ct.label);
+      chipRow.appendChild(chip);
     });
-    wrap.appendChild(catRow);
+    wrap.appendChild(chipRow);
 
-    // Subcategory groups for active categories
-    selCats.forEach(catId => {
-      const cat = tax.categories.find(c=>c.id===catId);
-      if(!cat || !cat.subs || cat.subs.length===0) return;
-      const group = div({class:"subcat-group"});
-      group.appendChild(div({class:"subcat-label"},`${cat.label} — Genres / Types`));
-      const subRow = div({class:"subcat-row"});
-      cat.subs.forEach(sub => {
-        const isSubActive = (selSubs[catId]||[]).includes(sub);
-        const chip = btn({
-          class:"subcat-chip"+(isSubActive?" active":""),
-          style: isSubActive ? {color:cat.color,borderColor:cat.color} : {},
-          onclick: () => toggleSubcategory(catId, sub),
-        }, sub);
-        subRow.appendChild(chip);
+    // Expanded panel for each active slot
+    CONTENT_TYPES.forEach(ct => {
+      const slot = slots[ct.id] || defaultSlot(ct);
+      if (!slot.active) return;
+
+      const panel = div({
+        class: "slot-panel",
+        style: { borderColor: ct.color + "50", borderLeftWidth: "3px", borderLeftColor: ct.color }
       });
-      group.appendChild(subRow);
-      wrap.appendChild(group);
+
+      // Panel header
+      const hdr = div({class:"slot-panel-header"});
+      hdr.appendChild(span({class:"slot-panel-title", style:{color:ct.color}}, ct.icon + "\u00A0" + ct.label));
+      if (slot.scheduled) {
+        hdr.appendChild(span({class:"slot-scheduled-badge"}, "✓ SCHEDULED"));
+      }
+      panel.appendChild(hdr);
+
+      // Sub-fields (genre, language, variant)
+      ct.fields.forEach(f => {
+        const fWrap = div({class:"slot-subfield"});
+        fWrap.appendChild(div({class:"slot-subfield-label"}, f.label));
+        const optRow = div({class:"slot-options-row"});
+        f.options.forEach(opt => {
+          const isSel = slot[f.key] === opt;
+          const chip = btn({
+            class: "slot-option-chip" + (isSel ? " active" : ""),
+            style: isSel ? { color: ct.color, borderColor: ct.color, background: ct.color + "15" } : {},
+            onclick: () => updateSlotField(ct.id, f.key, isSel ? "" : opt),
+          }, opt);
+          optRow.appendChild(chip);
+        });
+        fWrap.appendChild(optRow);
+        panel.appendChild(fWrap);
+      });
+
+      // Scheduled row
+      const metaRow = div({class:"slot-meta-row"});
+
+      const schedWrap = div({class:"slot-sched-wrap"});
+      const checkId = "sched-" + ct.id;
+      const checkbox = el("input", {
+        type: "checkbox",
+        id: checkId,
+      });
+      if (slot.scheduled) checkbox.setAttribute("checked", "");
+      checkbox.checked = !!slot.scheduled;
+      checkbox.addEventListener("change", e => updateSlotField(ct.id, "scheduled", e.target.checked));
+      schedWrap.appendChild(checkbox);
+      schedWrap.appendChild(el("label", {for: checkId, class:"slot-sched-label"}, "Scheduled"));
+      metaRow.appendChild(schedWrap);
+
+      panel.appendChild(metaRow);
+
+      // Analytics section
+      const analyticsWrap = div({});
+      analyticsWrap.appendChild(el("label", {class:"slot-analytics-label"}, "Analytics"));
+      const analyticsArea = el("textarea", {
+        class: "slot-analytics",
+        placeholder: "Views · Likes · Comments · Reach · Saves · Shares...",
+        rows: "3",
+      }, slot.analytics || "");
+      analyticsArea.addEventListener("input", e => updateSlotField(ct.id, "analytics", e.target.value));
+      analyticsArea.addEventListener("focus", e => { e.target.style.borderColor = ct.color; });
+      analyticsArea.addEventListener("blur",  e => { e.target.style.borderColor = "var(--border)"; });
+      analyticsWrap.appendChild(analyticsArea);
+      panel.appendChild(analyticsWrap);
+
+      wrap.appendChild(panel);
     });
 
     return wrap;
   }
 
+  // ─── BUILD: DETAIL BODY ───────────────────────────────────────────────────
   function buildDetailBody() {
     if(!state.sel) return div({});
     const tk = getTaxonomyKey(state.sel);
@@ -1202,10 +1302,10 @@ self.addEventListener('fetch', e => {
         })
       ),
 
-      // Categories + Subcategories
-      buildCategorySelector(),
+      // Content type slots (the new system)
+      buildContentSlots(),
 
-      // Tasks
+      // Production pipeline tasks
       div({class:"mb-20"},
         el("label",{class:"field-label"},"Production Pipeline"),
         div({class:"task-list"},
@@ -1263,6 +1363,7 @@ self.addEventListener('fetch', e => {
     );
   }
 
+  // ─── BUILD: DETAIL PANEL ──────────────────────────────────────────────────
   function buildDetail() {
     if(!state.sel) return null;
     const meta  = getDayMeta(state.sel);
@@ -1294,6 +1395,41 @@ self.addEventListener('fetch', e => {
     return panel;
   }
 
+  // ─── BUILD: DAY STRIP ─────────────────────────────────────────────────────
+  function buildDayStrip() {
+    const days = getDays();
+    return div({class:"day-strip"},
+      ...days.map(date => {
+        const ok    = inRange(date);
+        const key   = fmtKey(date);
+        const m     = ok?getDayMeta(date):null;
+        const frac  = doneFrac(date);
+        const isSel = state.sel && fmtKey(state.sel)===key;
+        const e     = state.entries[key];
+        const allDone = frac===1 && e?.tasks?.length>0;
+        const cell = div({
+          class:"day-cell"+(ok?"":" out-of-range")+(isSel?" selected":""),
+          style: {
+            border:`1px solid ${isSel?(m?.accent||"var(--gold)"):(allDone?"#2A3A2A":"var(--border)")}`,
+            boxShadow: isSel?`0 0 0 1px ${m?.accent||"var(--gold)"}30`:"none",
+          },
+          onclick: () => { if(ok) selectDay(date); },
+        });
+        if(frac>0) cell.appendChild(div({class:"comp-bar", style:{width:`${frac*100}%`,background:m?.accent||"var(--gold)"}}));
+        if(allDone) cell.appendChild(div({class:"done-glow", style:{background:`${m?.accent}08`}}));
+        cell.appendChild(span({class:"day-short"},DAY_S[date.getDay()]));
+        cell.appendChild(div({class:"day-num"+(isSel?" selected":""), style:{color:isSel?(m?.accent||"var(--gold)"):"var(--text)"}},date.getDate()));
+        if(m) {
+          cell.appendChild(div({class:"day-emoji"},m.emoji));
+          cell.appendChild(div({class:"day-label"+(m.isMain?" main":"")+(m.isSpecial?" special":"")},m.label));
+          if(e?.title) cell.appendChild(div({class:"day-titled"},"✓ "+e.title));
+        }
+        return cell;
+      })
+    );
+  }
+
+  // ─── BUILD: WEEK LIST ─────────────────────────────────────────────────────
   function buildWeekList() {
     const days = getDays();
     return div({class:"mb-20"},
@@ -1303,11 +1439,7 @@ self.addEventListener('fetch', e => {
           const m    = getDayMeta(date);
           const e    = state.entries[fmtKey(date)];
           const frac = doneFrac(date);
-          // Collect active category labels for display
-          const selCats = e?.categories || [];
-          const tk = getTaxonomyKey(date);
-          const tax = TAXONOMY[tk];
-          const catLabels = selCats.map(cid => tax?.categories.find(c=>c.id===cid)?.label).filter(Boolean);
+          const activeSlots = getActiveSlots(e);
 
           return div({
             class:"week-row",
@@ -1325,8 +1457,14 @@ self.addEventListener('fetch', e => {
                 e?.title||"Untitled — click to fill in"
               ),
               div({class:"week-row-series"},m.series),
-              catLabels.length>0 ? div({class:"week-row-tags"},
-                ...catLabels.map(l=>span({class:"week-tag",style:{color:m.accent}},l))
+              activeSlots.length>0 ? div({class:"week-row-slots"},
+                ...activeSlots.map(ct => {
+                  const slot = e.slots[ct.id];
+                  const badge = span({class:"week-slot-badge", style:{color:ct.color}},
+                    ct.icon + " " + ct.label + (slot.scheduled?" ✓":"")
+                  );
+                  return badge;
+                })
               ) : null,
             ),
             div({class:"week-row-label",style:{color:m.isMain||m.isSpecial?m.accent:"var(--dim)",fontWeight:m.isMain?700:400}},m.label),
@@ -1337,6 +1475,7 @@ self.addEventListener('fetch', e => {
     );
   }
 
+  // ─── BUILD: OVERVIEW ──────────────────────────────────────────────────────
   function buildOverview() {
     const weeks = allWeeks(state.overviewExtra);
     const totalWks = weeks.length;
@@ -1467,17 +1606,16 @@ self.addEventListener('fetch', e => {
       root.appendChild(buildOverview());
     }
 
+    // Legend — content types
     root.appendChild(div({class:"legend"},
-      div({class:"legend-title"},"Series Legend"),
+      div({class:"legend-title"},"Content Types"),
       div({class:"legend-items"},
-        ...[ ["📖","Deep Dive","#9B72CF"],["📣","Promo","#C9A84C"],["👻","Lore Drop","#A84C4C"],
-             ["🎙️","Behind the Mic","#4A9F8B"],["🎧","Main Release","#C9A84C"],["🌙","Flex","#5A6878"],["☕","Cozy Reset","#6B9F76"] ]
-          .map(([emoji,label,color])=>
-            div({class:"legend-item"},
-              span({class:"legend-emoji"},emoji),
-              span({class:"legend-label",style:{color}},label)
-            )
+        ...CONTENT_TYPES.map(ct =>
+          div({class:"legend-item"},
+            span({class:"legend-emoji"},ct.icon),
+            span({class:"legend-label",style:{color:ct.color}},ct.label)
           )
+        )
       )
     ));
 
