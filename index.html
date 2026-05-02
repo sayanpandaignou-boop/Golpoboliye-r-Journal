@@ -430,6 +430,22 @@
     }
     .slot-analytics::placeholder { color: var(--dim); font-style: italic; }
 
+    /* ── Slot text input ── */
+    .slot-text-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--text);
+      outline: none;
+      padding: 8px 11px;
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+    .slot-text-input::placeholder { color: var(--dim); font-style: italic; }
+
     /* ── Task list ── */
     .task-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 10px; }
     .task-row {
@@ -695,7 +711,27 @@ self.addEventListener('fetch', e => {
       label: "YT Audiobook",
       icon: "🎧",
       color: "#C9A84C",
-      fields: []
+      fields: [
+        {
+          key: "genre",
+          label: "Genre",
+          type: "chips",
+          multi: false,
+          options: ["Horror","Thriller","Adventure","Fantasy","Romance","Author Series","Folklore","Mythology","Dark Comedy","Literary"]
+        },
+        {
+          key: "storyName",
+          label: "Name of the Story",
+          type: "text",
+          placeholder: "Enter story title..."
+        },
+        {
+          key: "authorName",
+          label: "Author",
+          type: "text",
+          placeholder: "Enter author name..."
+        }
+      ]
     },
     {
       id: "yt-shorts-promo",
@@ -706,6 +742,7 @@ self.addEventListener('fetch', e => {
         {
           key: "genre",
           label: "Genre",
+          type: "chips",
           multi: false,
           options: ["Horror","Thriller","Adventure","Fantasy","Romance","Author Series","Folklore","Mythology","Dark Comedy","Literary"]
         }
@@ -734,14 +771,28 @@ self.addEventListener('fetch', e => {
         {
           key: "language",
           label: "Language",
+          type: "chips",
           multi: false,
           options: ["Bengali","English"]
         },
         {
           key: "genre",
           label: "Genre",
+          type: "chips",
           multi: false,
           options: ["Horror","Thriller","Mystery","Literary Fiction","Bengali Classic","Contemporary","Fantasy","Sci-Fi","Historical"]
+        },
+        {
+          key: "novelName",
+          label: "Name of the Novel",
+          type: "text",
+          placeholder: "Enter novel title..."
+        },
+        {
+          key: "authorName",
+          label: "Author",
+          type: "text",
+          placeholder: "Enter author name..."
         }
       ]
     },
@@ -1222,21 +1273,34 @@ self.addEventListener('fetch', e => {
       }
       panel.appendChild(hdr);
 
-      // Sub-fields (genre, language, variant)
+      // Sub-fields (genre, language, variant, text inputs)
       ct.fields.forEach(f => {
         const fWrap = div({class:"slot-subfield"});
         fWrap.appendChild(div({class:"slot-subfield-label"}, f.label));
-        const optRow = div({class:"slot-options-row"});
-        f.options.forEach(opt => {
-          const isSel = slot[f.key] === opt;
-          const chip = btn({
-            class: "slot-option-chip" + (isSel ? " active" : ""),
-            style: isSel ? { color: ct.color, borderColor: ct.color, background: ct.color + "15" } : {},
-            onclick: () => updateSlotField(ct.id, f.key, isSel ? "" : opt),
-          }, opt);
-          optRow.appendChild(chip);
-        });
-        fWrap.appendChild(optRow);
+        if (f.type === "text") {
+          const textInput = el("input", {
+            type: "text",
+            class: "slot-text-input",
+            placeholder: f.placeholder || "",
+          });
+          textInput.value = slot[f.key] || "";
+          textInput.addEventListener("input",  e => updateSlotField(ct.id, f.key, e.target.value));
+          textInput.addEventListener("focus",  e => { e.target.style.borderColor = ct.color; });
+          textInput.addEventListener("blur",   e => { e.target.style.borderColor = "var(--border)"; });
+          fWrap.appendChild(textInput);
+        } else {
+          const optRow = div({class:"slot-options-row"});
+          (f.options || []).forEach(opt => {
+            const isSel = slot[f.key] === opt;
+            const chip = btn({
+              class: "slot-option-chip" + (isSel ? " active" : ""),
+              style: isSel ? { color: ct.color, borderColor: ct.color, background: ct.color + "15" } : {},
+              onclick: () => updateSlotField(ct.id, f.key, isSel ? "" : opt),
+            }, opt);
+            optRow.appendChild(chip);
+          });
+          fWrap.appendChild(optRow);
+        }
         panel.appendChild(fWrap);
       });
 
