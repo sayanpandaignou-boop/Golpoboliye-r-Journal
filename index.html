@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="গল্পবলিয়ে" />
-  <meta name="description" content="Content Journal for Golpoboliye Obhijatrik — May 2026 to Jan 2027" />
+  <meta name="description" content="Content Journal for Golpoboliye Obhijatrik — Ongoing from May 2026" />
   <title>গল্পবলিয়ে অভিযাত্রিক</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -515,7 +515,7 @@
     const manifest = {
       name: "গল্পবলিয়ে অভিযাত্রিক",
       short_name: "গল্পবলিয়ে",
-      description: "Content Journal — May 2026 to Jan 2027",
+      description: "Content Journal — Ongoing from May 2026",
       start_url: "./",
       display: "standalone",
       background_color: "#0B0906",
@@ -785,7 +785,7 @@ self.addEventListener('fetch', e => {
 
   // ─── DAY META ─────────────────────────────────────────────────────────────
   const START_DATE = new Date(2026, 4, 4);
-  const END_DATE   = new Date(2027, 0, 31);
+  // No END_DATE — journal runs indefinitely from START_DATE
   const WED_SERIES = ["Banglar Bhoot","Wizarding World bonam Banglar Tontro","Shotti Bhoutik Ghotona"];
 
   function getWedSeries(date) {
@@ -829,8 +829,9 @@ self.addEventListener('fetch', e => {
   function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
   function wkStart(d)  { const x=new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate()-x.getDay()); return x; }
   function dateMs(d)   { return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime(); }
-  function inRange(d)  { return dateMs(d)>=dateMs(START_DATE) && dateMs(d)<=dateMs(END_DATE); }
+  function inRange(d)  { return dateMs(d)>=dateMs(START_DATE); }
   function weekNum(ws) { const base=wkStart(START_DATE); return Math.max(1,Math.floor((dateMs(ws)-dateMs(base))/(7*86400000))+1); }
+  function currentWeekStart() { return wkStart(new Date()); }
   function weekLabel(days){
     const a=days[0],b=days[6];
     if(a.getMonth()===b.getMonth()) return MONTHS[a.getMonth()]+" "+a.getFullYear();
@@ -839,7 +840,7 @@ self.addEventListener('fetch', e => {
 
   // ─── STATE ────────────────────────────────────────────────────────────────
   let state = {
-    ws: wkStart(START_DATE),
+    ws: (function(){ const cw=wkStart(new Date()); return dateMs(cw)>=dateMs(wkStart(START_DATE))?cw:wkStart(START_DATE); })(),
     sel: null,
     entries: {},
     // edit shape: { title, notes, tasks[], categories:[], subcategories:{catId:[sub,...]} }
@@ -850,6 +851,7 @@ self.addEventListener('fetch', e => {
     saveTimer: null,
     deferredPrompt: null,
     showInstallBanner: false,
+    overviewExtra: 0,
   };
 
   // ─── STORAGE ──────────────────────────────────────────────────────────────
@@ -959,9 +961,11 @@ self.addEventListener('fetch', e => {
   function totalDone()   { return Object.values(state.entries).reduce((a,e)=>a+(e?.tasks?.filter(t=>t===true).length||0),0); }
   function totalTasks()  { return Object.values(state.entries).reduce((a,e)=>a+(e?.tasks?.length||0),0); }
   function overallPct()  { const t=totalTasks(); return t>0?Math.round((totalDone()/t)*100):0; }
-  function allWeeks()    {
+  function allWeeks(extraWeeks)    {
+    // Show from START_DATE up to (8 + extraWeeks) ahead of today — always growing
+    const horizon = addDays(wkStart(new Date()), (8 + (extraWeeks||0))*7);
     const ws=[]; let cur=wkStart(START_DATE);
-    while(dateMs(cur)<=dateMs(END_DATE)){ ws.push(new Date(cur)); cur=addDays(cur,7); }
+    while(dateMs(cur)<=dateMs(horizon)){ ws.push(new Date(cur)); cur=addDays(cur,7); }
     return ws;
   }
 
@@ -995,15 +999,14 @@ self.addEventListener('fetch', e => {
   }
   function nextWeek() {
     const nw = addDays(state.ws,7);
-    if(dateMs(nw) > dateMs(END_DATE)) return;
     state.ws=nw; state.sel=null; render();
   }
   function goWeek1() { state.ws=wkStart(START_DATE); selectDay(START_DATE); }
-  function switchView(v) { state.view=v; if(v==="week") state.sel=null; render(); }
+  function switchView(v) { state.view=v; if(v==="week") state.sel=null; else state.overviewExtra=0; render(); }
   function navigateDay(delta) {
     if(!state.sel) return;
     const next = addDays(state.sel, delta);
-    if(!inRange(next)) return;
+    if(dateMs(next) < dateMs(START_DATE)) return;
     const days = getDays();
     if(!days.find(d=>fmtKey(d)===fmtKey(next))) state.ws=wkStart(next);
     selectDay(next);
@@ -1335,9 +1338,10 @@ self.addEventListener('fetch', e => {
   }
 
   function buildOverview() {
-    const weeks = allWeeks();
+    const weeks = allWeeks(state.overviewExtra);
+    const totalWks = weeks.length;
     return div({},
-      div({class:"overview-title"},"All 39 Weeks · May 2026 – Jan 2027"),
+      div({class:"overview-title"},`Week 1 – Week ${totalWks} · May 2026 · Ongoing`),
       div({class:"overview-weeks"},
         ...weeks.map(wk => {
           const wkDays    = Array.from({length:7},(_,i)=>addDays(wk,i));
@@ -1385,7 +1389,12 @@ self.addEventListener('fetch', e => {
             )
           );
         })
-      )
+      ),
+      btn({
+        class:"data-btn",
+        style:{display:"block",margin:"0 auto 28px",padding:"10px 28px"},
+        onclick:()=>{ state.overviewExtra += 12; render(); }
+      },"⬇ Load 12 More Weeks"),
     );
   }
 
@@ -1422,9 +1431,9 @@ self.addEventListener('fetch', e => {
     const header = el("header",{},
       div({class:"header-eyebrow"},"Content Journal · গল্পবলিয়ে অভিযাত্রিক"),
       el("h1",{},"গল্পবলিয়ে অভিযাত্রিক"),
-      div({class:"header-dates"},"May 4, 2026 – Jan 31, 2027"),
+      div({class:"header-dates"},"May 4, 2026 · Ongoing"),
       div({class:"stats-row"},
-        ...[ ["Episodes Titled",tl], ["Tasks Done",td], ["Completion",pct+"%"], ["Weeks Total",39] ]
+        ...[ ["Episodes Titled",tl], ["Tasks Done",td], ["Completion",pct+"%"], ["Week",weekNum(state.ws)] ]
           .map(([l,v])=>div({class:"stat-item"},div({class:"stat-val"},String(v)),div({class:"stat-label"},l)))
       ),
       totalTasks()>0 ? div({class:"progress-wrap"},
@@ -1444,9 +1453,9 @@ self.addEventListener('fetch', e => {
         btn({class:"ghost-btn",onclick:prevWeek,disabled:dateMs(state.ws)<=dateMs(wkStart(START_DATE))},"←"),
         div({},
           div({class:"week-title"},weekLabel(days)),
-          div({class:"week-sub"},`WEEK ${weekNum(state.ws)} OF 39`),
+          div({class:"week-sub"},`WEEK ${weekNum(state.ws)}`),
         ),
-        btn({class:"ghost-btn",onclick:nextWeek,disabled:dateMs(addDays(state.ws,7))>dateMs(END_DATE)},"→"),
+        btn({class:"ghost-btn",onclick:nextWeek},"→"),
       );
       root.appendChild(nav);
       root.appendChild(btn({class:"jump-btn",onclick:goWeek1},"↩ Jump to Week 1"));
