@@ -458,7 +458,6 @@
     .week-row-emoji { font-size: 17px; flex-shrink: 0; }
     .week-row-info { flex: 1; min-width: 0; }
     .week-row-title { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .week-row-series { font-family: 'Space Mono', monospace; font-size: 8px; color: var(--dim); margin-top: 2px; }
     .week-row-label { font-family: 'Space Mono', monospace; font-size: 8px; flex-shrink: 0; }
     .dot-indicator { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
     .week-row-slots { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
@@ -600,7 +599,7 @@
     /* ── Idea Bank FAB (#6) ── */
     #idea-fab {
       position: fixed;
-      bottom: 22px;
+      bottom: 88px;
       right: 18px;
       width: 48px;
       height: 48px;
@@ -941,6 +940,7 @@ self.addEventListener('fetch', e => {
         {
           key: "variant",
           label: "Type",
+          type: "chips",
           multi: false,
           options: ["To Be Read","Currently Reading","Book Haul"]
         }
@@ -958,6 +958,7 @@ self.addEventListener('fetch', e => {
         {
           key: "variant",
           label: "Type",
+          type: "chips",
           multi: false,
           options: ["To Be Read","Currently Reading","Book Haul"]
         }
@@ -969,16 +970,16 @@ self.addEventListener('fetch', e => {
   function defaultSlot(ct) {
     const s = {
       active: false,
-      postStatus: "none",    // none | scheduled | live | reviewed
-      liveUrl: "",           // #2 live post URL
-      analyticsViews: "",    // #3 structured analytics
+      postStatus: "none",
+      liveUrl: "",
+      uploadDate: "",
+      analyticsViews: "",
       analyticsLikes: "",
       analyticsComments: "",
       analyticsSaves: "",
       analyticsShares: "",
       analyticsReach: "",
-      analytics: "",         // keep legacy field
-      caption: "",           // #5 split notes
+      caption: "",
       hashtags: "",
     };
     ct.fields.forEach(f => { s[f.key] = ""; });
@@ -1127,7 +1128,8 @@ self.addEventListener('fetch', e => {
     showInstallBanner: false,
     overviewExtra: 0,
     ideaBankOpen: false,
-    ideas: [],           // #6 idea bank: [{id, text, ts, pinned}]
+    ideas: [],
+    weekNotes: {},   // key: fmtKey(weekStart) → {focus:"", retro:""}
   };
 
   // ─── STORAGE ──────────────────────────────────────────────────────────────
@@ -1344,10 +1346,11 @@ self.addEventListener('fetch', e => {
     slots[ctId] = { ...cur, [field]: value };
     state.edit.slots = slots;
     scheduleAutoSave();
-    // Partial re-render: only update the specific slot panel
-    const body = document.getElementById("detail-body");
-    if (!body || !state.sel) return;
-    body.replaceChildren(buildDetailBody());
+    // Only re-render the slot section when post status changes (badge update needed)
+    // For plain field values (text inputs, chip selections) we just save — the input already reflects the value
+    if (field === "postStatus") {
+      renderDetailBody();
+    }
   }
 
   function updateTitle(val)    { state.edit.title = val; scheduleAutoSave(); }
@@ -1370,6 +1373,20 @@ self.addEventListener('fetch', e => {
   }
   function saveIdeas() {
     try { storageSet("ideas", JSON.stringify(state.ideas)); } catch{}
+  }
+
+  // ─── WEEKLY NOTES ─────────────────────────────────────────────────────────
+  function weekNoteKey() { return "wknote:" + fmtKey(state.ws); }
+  function loadWeekNote() {
+    try { const v = storageGet(weekNoteKey()); return v ? JSON.parse(v) : {focus:"",retro:""}; } catch { return {focus:"",retro:""}; }
+  }
+  function saveWeekNote(data) {
+    try { storageSet(weekNoteKey(), JSON.stringify(data)); } catch{}
+  }
+  function updateWeekNote(field, val) {
+    const current = loadWeekNote();
+    current[field] = val;
+    saveWeekNote(current);
   }
   function addIdea(text) {
     if(!text.trim()) return;
@@ -1523,7 +1540,7 @@ self.addEventListener('fetch', e => {
         const chip = btn({
           class: "slot-option-chip" + (isSel ? " active" : ""),
           style: isSel ? { color: ps.color, borderColor: ps.color, background: ps.color + "18" } : {},
-          onclick: () => { updateSlotField(ct.id, "postStatus", ps.id); updateSlotField(ct.id, "scheduled", ps.id === "scheduled" || ps.id === "live"); },
+          onclick: () => updateSlotField(ct.id, "postStatus", ps.id),
         }, ps.label);
         statusRow.appendChild(chip);
       });
@@ -1554,6 +1571,21 @@ self.addEventListener('fetch', e => {
       }
       urlWrap.appendChild(urlRow);
       panel.appendChild(urlWrap);
+
+      // ── UPLOAD / POST DATE (#8) ────────────────────────────────────────────
+      const dateWrap = div({class:"slot-subfield"});
+      dateWrap.appendChild(div({class:"slot-subfield-label"}, ct.platform === "instagram" ? "Post Date" : "Upload Date"));
+      const dateInput = el("input", {
+        type: "date",
+        class: "slot-text-input",
+        style: { fontFamily:"'Space Mono',monospace", fontSize:"12px", cursor:"pointer" },
+      });
+      dateInput.value = slot.uploadDate || "";
+      dateInput.addEventListener("change", e => updateSlotField(ct.id, "uploadDate", e.target.value));
+      dateInput.addEventListener("focus",  e => { e.target.style.borderColor = ct.color; });
+      dateInput.addEventListener("blur",   e => { e.target.style.borderColor = "var(--border)"; });
+      dateWrap.appendChild(dateInput);
+      panel.appendChild(dateWrap);
 
       // ── STRUCTURED ANALYTICS (#3) ──────────────────────────────────────────
       const analyticsWrap = div({class:"slot-subfield"});
@@ -1916,6 +1948,86 @@ self.addEventListener('fetch', e => {
     );
   }
 
+  // ─── BUILD: WEEKLY NOTE ───────────────────────────────────────────────────
+  function buildWeeklyNote() {
+    const note = loadWeekNote();
+    const accent = "var(--gold)";
+    return div({
+      style:{
+        background:"var(--card)",
+        border:"1px solid var(--border)",
+        borderRadius:"10px",
+        padding:"16px 18px",
+        marginBottom:"28px",
+      }
+    },
+      div({
+        style:{
+          fontFamily:"'Space Mono',monospace",
+          fontSize:"8px",
+          letterSpacing:"0.25em",
+          textTransform:"uppercase",
+          color:"var(--muted)",
+          marginBottom:"14px",
+        }
+      }, `★ Week ${weekNum(state.ws)} Notes`),
+
+      // This week's focus
+      div({style:{marginBottom:"14px"}},
+        el("label",{
+          style:{
+            display:"block",
+            fontFamily:"'Space Mono',monospace",
+            fontSize:"7px",
+            letterSpacing:"0.2em",
+            textTransform:"uppercase",
+            color:"var(--dim)",
+            marginBottom:"6px",
+          }
+        },"This Week's Focus / Goal"),
+        el("textarea",{
+          placeholder:"What do you want to achieve this week? Any target — subscribers, output, quality...",
+          rows:2,
+          style:{
+            borderColor:"var(--border)",
+            minHeight:"60px",
+            fontSize:"14px",
+          },
+          oninput: e => updateWeekNote("focus", e.target.value),
+          onfocus: e => e.target.style.borderColor = accent,
+          onblur:  e => e.target.style.borderColor = "var(--border)",
+        }, note.focus || "")
+      ),
+
+      // Retrospective
+      div({},
+        el("label",{
+          style:{
+            display:"block",
+            fontFamily:"'Space Mono',monospace",
+            fontSize:"7px",
+            letterSpacing:"0.2em",
+            textTransform:"uppercase",
+            color:"var(--dim)",
+            marginBottom:"6px",
+          }
+        },"Retrospective — What Worked / What Flopped"),
+        el("textarea",{
+          placeholder:"Honest reflection. What got traction? What fell flat? What would you do differently?",
+          rows:3,
+          style:{
+            borderColor:"var(--border)",
+            minHeight:"80px",
+            fontSize:"14px",
+          },
+          oninput: e => updateWeekNote("retro", e.target.value),
+          onfocus: e => e.target.style.borderColor = accent,
+          onblur:  e => e.target.style.borderColor = "var(--border)",
+        }, note.retro || "")
+      ),
+    );
+  }
+
   // ─── BUILD: IDEA BANK (#6) ────────────────────────────────────────────────
   function buildIdeaBank() {
     // FAB button
@@ -1923,7 +2035,6 @@ self.addEventListener('fetch', e => {
       id: "idea-fab",
       onclick: () => { state.ideaBankOpen = !state.ideaBankOpen; renderIdeaBank(); },
     }, "💡");
-    const unpinned = state.ideas.filter(i => !i.pinned);
     if(state.ideas.length > 0) {
       const badge = span({class:"fab-badge"}, String(state.ideas.length > 9 ? "9+" : state.ideas.length));
       fab.appendChild(badge);
@@ -1991,16 +2102,18 @@ self.addEventListener('fetch', e => {
 
   function renderIdeaBank() {
     const existing = document.getElementById("idea-fab");
-    const drawer   = document.getElementById("idea-drawer");
-    const newBank  = buildIdeaBank();
+    const oldDrawer = document.getElementById("idea-drawer");
+    const newBank   = buildIdeaBank();
+    // Extract both children BEFORE any DOM insertion moves them out of newBank
+    const newFab    = newBank.children[0];
+    const newDrawer = newBank.children[1] || null;
     if(existing) {
-      existing.replaceWith(newBank.firstChild);
-      if(drawer) drawer.remove();
-      if(state.ideaBankOpen && newBank.children.length > 1) document.body.appendChild(newBank.lastChild);
+      existing.replaceWith(newFab);
     } else {
-      document.body.appendChild(newBank.firstChild);
-      if(state.ideaBankOpen && newBank.children.length > 1) document.body.appendChild(newBank.lastChild);
+      document.body.appendChild(newFab);
     }
+    if(oldDrawer) oldDrawer.remove();
+    if(newDrawer) document.body.appendChild(newDrawer);
   }
 
   // ─── MAIN RENDER ──────────────────────────────────────────────────────────
@@ -2018,10 +2131,13 @@ self.addEventListener('fetch', e => {
       el("h1",{},"গল্পবলিয়ে অভিযাত্রিক"),
       div({class:"header-dates"}, (function(){
         const now = new Date();
-        const wkS = wkStart(now);
-        const wkE = addDays(wkS, 6);
+        // Week starts Monday to match the day strip (Mon–Sun)
+        const day = now.getDay(); // 0=Sun,1=Mon,...
+        const diffToMon = (day === 0) ? -6 : 1 - day;
+        const monStart = addDays(now, diffToMon);
+        const sunEnd   = addDays(monStart, 6);
         const fmt = d => `${MONTHS[d.getMonth()].slice(0,3)} ${d.getDate()}`;
-        return `${fmt(wkS)} – ${fmt(wkE)}, ${now.getFullYear()} · Ongoing`;
+        return `${fmt(monStart)} – ${fmt(sunEnd)}, ${now.getFullYear()} · Ongoing`;
       })()),
       div({class:"stats-row"},
         ...[ ["Episodes Titled",tl], ["Tasks Done",td], ["Completion",pct+"%"], ["Week",weekNum(state.ws)] ]
@@ -2053,7 +2169,10 @@ self.addEventListener('fetch', e => {
       root.appendChild(buildDayStrip());
 
       if(state.sel) root.appendChild(buildDetail());
-      else root.appendChild(buildWeekList());
+      else {
+        root.appendChild(buildWeekList());
+        root.appendChild(buildWeeklyNote());
+      }
     } else {
       root.appendChild(buildOverview());
     }
@@ -2078,8 +2197,10 @@ self.addEventListener('fetch', e => {
     const existingFab = document.getElementById("idea-fab");
     if(!existingFab) {
       const bank = buildIdeaBank();
-      document.body.appendChild(bank.firstChild);
-      if(state.ideaBankOpen && bank.children.length > 1) document.body.appendChild(bank.lastChild);
+      const bankFab    = bank.children[0];
+      const bankDrawer = bank.children[1] || null;
+      document.body.appendChild(bankFab);
+      if(bankDrawer) document.body.appendChild(bankDrawer);
     } else {
       renderIdeaBank();
     }
