@@ -25,6 +25,7 @@
       --text:    #E8DBC0;
       --muted:   #6B5E48;
       --dim:     #3A3028;
+      color-scheme: dark;
     }
 
     :root.light {
@@ -37,6 +38,7 @@
       --text:    #2A2018;
       --muted:   #7A6A52;
       --dim:     #A89880;
+      color-scheme: light;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -378,6 +380,12 @@
       font-size: 14px;
       transition: border-color 0.15s;
       -webkit-appearance: none;
+      color-scheme: inherit;
+    }
+    .slot-text-input[type="date"] {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
     }
     .slot-text-input::placeholder { color: var(--dim); font-style: italic; }
 
@@ -540,7 +548,7 @@
     .data-btn:hover { border-color: var(--gold); color: var(--gold); }
     .data-btn.danger:hover { border-color: #A84C4C; color: #A84C4C; }
     .data-label { font-family: 'Space Mono', monospace; font-size: 8px; color: var(--dim); letter-spacing: 0.1em; align-self: center; }
-    #import-file { display: none; }
+    #import-file { opacity: 0; width: 0; height: 0; position: absolute; pointer-events: none; }
 
     /* ── Toast ── */
     #toast {
@@ -833,26 +841,34 @@
 
   // ─── SERVICE WORKER ───────────────────────────────────────────────────────
   if ('serviceWorker' in navigator) {
+    // Use a data: URL which is supported for SW registration in modern Chrome/Firefox
+    // as a fallback when no sw.js file is available
     const swCode = `
-const CACHE = 'golpoboliye-v3';
-const ASSETS = [self.location.href];
+const CACHE = 'golpoboliye-v4';
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  self.skipWaiting();
 });
 self.addEventListener('activate', e => { e.waitUntil(clients.claim()); });
 self.addEventListener('fetch', e => {
+  if(e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request).then(res => {
-      const clone = res.clone();
-      caches.open(CACHE).then(c => c.put(e.request, clone));
-      return res;
-    }).catch(() => caches.match(e.request).then(r => r || new Response('Offline', {status:503, statusText:'Offline'}))))
+    caches.open(CACHE).then(cache =>
+      cache.match(e.request).then(cached => {
+        const fetched = fetch(e.request).then(res => {
+          if(res.ok) cache.put(e.request, res.clone());
+          return res;
+        }).catch(() => cached);
+        return cached || fetched;
+      })
+    )
   );
 });
     `;
-    const swBlob = new Blob([swCode], { type: 'text/javascript' });
-    const swUrl  = URL.createObjectURL(swBlob);
-    navigator.serviceWorker.register(swUrl).catch(() => {});
+    try {
+      const swBlob = new Blob([swCode], { type: 'text/javascript' });
+      const swUrl  = URL.createObjectURL(swBlob);
+      navigator.serviceWorker.register(swUrl, {scope: './'}).catch(() => {});
+    } catch(e) {}
   }
 
   // ─── CONTENT TYPES ────────────────────────────────────────────────────────
@@ -1104,7 +1120,7 @@ self.addEventListener('fetch', e => {
 
   function getWedSeries(date) {
     const start = new Date(2026, 4, 6);
-    const weeks = Math.round((date - start) / (7 * 86400000));
+    const weeks = Math.floor((date - start) / (7 * 86400000));
     return WED_SERIES[((weeks % 3) + 3) % 3];
   }
   function isAnniversary(date) {
@@ -1137,7 +1153,7 @@ self.addEventListener('fetch', e => {
 
   function fmtKey(d)   { return d.toISOString().split("T")[0]; }
   function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
-  function wkStart(d)  { const x=new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate()-x.getDay()); return x; }
+  function wkStart(d)  { const x=new Date(d); x.setHours(0,0,0,0); const day=x.getDay(); const diff=(day===0)?-6:1-day; x.setDate(x.getDate()+diff); return x; }
   function dateMs(d)   { return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime(); }
   function inRange(d)  { return dateMs(d)>=dateMs(START_DATE); }
   function weekNum(ws) { const base=wkStart(START_DATE); return Math.max(1,Math.floor((dateMs(ws)-dateMs(base))/(7*86400000))+1); }
@@ -1213,7 +1229,17 @@ self.addEventListener('fetch', e => {
 
   // ─── EXPORT / IMPORT ──────────────────────────────────────────────────────
   function exportData() {
-    const payload = { app:"golpoboliye", version:3, exported:new Date().toISOString(), entries:state.entries };
+    // Collect all week notes
+    const weekNotes = {};
+    try {
+      for(let i=0;i<localStorage.length;i++){
+        const k=localStorage.key(i);
+        if(k&&k.startsWith("wknote:")){
+          try{ weekNotes[k] = JSON.parse(localStorage.getItem(k)); }catch{}
+        }
+      }
+    } catch{}
+    const payload = { app:"golpoboliye", version:4, exported:new Date().toISOString(), entries:state.entries, ideas:state.ideas, weekNotes };
     const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement("a");
@@ -1236,6 +1262,17 @@ self.addEventListener('fetch', e => {
           storageSet("entry:"+k, JSON.stringify(v));
           state.entries[k] = v;
         });
+        // Restore ideas (v4+)
+        if(Array.isArray(payload.ideas)) {
+          state.ideas = payload.ideas;
+          saveIdeas();
+        }
+        // Restore week notes (v4+)
+        if(payload.weekNotes && typeof payload.weekNotes === "object") {
+          Object.entries(payload.weekNotes).forEach(([k,v]) => {
+            try { storageSet(k, JSON.stringify(v)); } catch{}
+          });
+        }
         render();
         showToast(`✓ Imported ${Object.keys(payload.entries).length} entries`);
       } catch { showToast("✗ Could not read file"); }
@@ -1338,7 +1375,9 @@ self.addEventListener('fetch', e => {
     const next = addDays(state.sel, delta);
     if(dateMs(next) < dateMs(START_DATE)) return;
     const days = getDays();
-    if(!days.find(d=>fmtKey(d)===fmtKey(next))) state.ws=wkStart(next);
+    if(!days.find(d=>fmtKey(d)===fmtKey(next))) {
+      state.ws = wkStart(next);
+    }
     selectDay(next);
   }
   function goToWeek(ws) { state.ws=ws; state.sel=null; state.view="week"; render(); }
@@ -1358,7 +1397,47 @@ self.addEventListener('fetch', e => {
     t[i] = !t[i];
     state.edit.tasks = t;
     scheduleAutoSave();
-    renderDetailBody();
+    // Surgical update: just flip the visual state of this task row
+    const taskRows = document.querySelectorAll(".task-row");
+    if (taskRows[i]) {
+      const done = t[i];
+      const meta = getDayMeta(state.sel);
+      const row = taskRows[i];
+      row.style.background = done ? `${meta.accent}0A` : "transparent";
+      row.style.border = `1px solid ${done ? meta.accent+"40" : "var(--border)"}`;
+      const checkbox = row.querySelector(".task-checkbox");
+      if (checkbox) {
+        checkbox.style.border = `1.5px solid ${done ? meta.accent : "var(--dim)"}`;
+        checkbox.style.background = done ? `${meta.accent}25` : "transparent";
+        checkbox.textContent = done ? "✓" : "";
+      }
+      const text = row.querySelector(".task-text");
+      if (text) {
+        text.className = "task-text" + (done ? " done" : "");
+      }
+      // Update the progress bar
+      const tk = getTaxonomyKey(state.sel);
+      const taskList = TASKS[tk] || [];
+      const doneCnt = t.filter(x => x === true).length;
+      const pct = taskList.length > 0 ? (doneCnt / taskList.length) * 100 : 0;
+      const fill = document.querySelector(".task-progress-fill");
+      if (fill) fill.style.width = `${pct}%`;
+      const label = document.querySelector(".task-progress-label");
+      if (label) {
+        label.textContent = `${doneCnt}/${taskList.length}`;
+        if (doneCnt === taskList.length && taskList.length > 0) {
+          if (!label.querySelector(".all-done-badge")) {
+            const badge = document.createElement("span");
+            badge.className = "all-done-badge";
+            badge.textContent = "ALL DONE";
+            label.appendChild(badge);
+          }
+        } else {
+          const badge = label.querySelector(".all-done-badge");
+          if (badge) badge.remove();
+        }
+      }
+    }
   }
 
   // ─── SLOT FUNCTIONS ───────────────────────────────────────────────────────
@@ -1370,7 +1449,13 @@ self.addEventListener('fetch', e => {
     slots[ctId] = { ...cur, active: !cur.active };
     state.edit.slots = slots;
     scheduleAutoSave();
-    renderDetailBody();
+    // Only rebuild the slots section, not the entire detail body
+    const slotsEl = document.getElementById("slots-section");
+    if (slotsEl) {
+      const newSlots = buildContentSlots();
+      newSlots.id = "slots-section";
+      slotsEl.replaceWith(newSlots);
+    }
   }
 
   function updateSlotField(ctId, field, value) {
@@ -1381,11 +1466,6 @@ self.addEventListener('fetch', e => {
     slots[ctId] = { ...cur, [field]: value };
     state.edit.slots = slots;
     scheduleAutoSave();
-    // Only re-render the slot section when post status changes (badge update needed)
-    // For plain field values (text inputs, chip selections) we just save — the input already reflects the value
-    if (field === "postStatus") {
-      renderDetailBody();
-    }
   }
 
   function updateTitle(val)    { state.edit.title = val; scheduleAutoSave(); }
@@ -1437,6 +1517,20 @@ self.addEventListener('fetch', e => {
     if(idea) { idea.pinned = !idea.pinned; saveIdeas(); }
   }
 
+  // ─── CLIPBOARD COPY (works on http + https) ──────────────────────────────
+  function fallbackCopy(text) {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.cssText = "position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none;";
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      showToast(ok ? "✓ Caption copied" : "✗ Copy not available");
+    } catch { showToast("✗ Copy not available"); }
+  }
+
   // ─── RENDER HELPERS ───────────────────────────────────────────────────────
   function el(tag, attrs={}, ...children) {
     const e = document.createElement(tag);
@@ -1444,6 +1538,10 @@ self.addEventListener('fetch', e => {
       if(k==="style" && typeof v==="object") Object.assign(e.style, v);
       else if(k==="class") e.className=v;
       else if(k.startsWith("on") && typeof v==="function") e.addEventListener(k.slice(2).toLowerCase(), v);
+      else if(k==="value") e.value = v !== null && v !== undefined ? String(v) : "";
+      else if(k==="disabled") e.disabled = !!v;
+      else if(k==="checked") e.checked = !!v;
+      else if(k==="rows") e.rows = parseInt(v,10);
       else if(typeof v === "boolean") { if(v) e.setAttribute(k,""); else e.removeAttribute(k); }
       else e.setAttribute(k,v);
     });
@@ -1466,7 +1564,7 @@ self.addEventListener('fetch', e => {
 
   function renderDetailBody() {
     const body = document.getElementById("detail-body");
-    if(!body||!state.sel) return;
+    if(!body || !state.sel) return;
     body.replaceChildren(buildDetailBody());
   }
 
@@ -1492,7 +1590,7 @@ self.addEventListener('fetch', e => {
     const meta = getDayMeta(state.sel);
     const slots = state.edit.slots || defaultSlots();
 
-    const wrap = div({class:"content-slots-section"});
+    const wrap = div({class:"content-slots-section", id:"slots-section"});
     wrap.appendChild(el("label", {class:"slot-chips-label"}, "Content for this day"));
 
     // Row of content type selector chips
@@ -1505,7 +1603,7 @@ self.addEventListener('fetch', e => {
         style: isActive
           ? { background: ct.color, borderColor: ct.color, color: "#fff" }
           : { borderColor: "var(--border)" },
-        onclick: () => toggleSlot(ct.id),
+        onclick: (e) => { e.stopPropagation(); toggleSlot(ct.id); },
       }, ct.icon + "\u00A0" + ct.label);
       chipRow.appendChild(chip);
     });
@@ -1532,7 +1630,7 @@ self.addEventListener('fetch', e => {
       titleWrap.appendChild(span({class:"slot-panel-title", style:{color:ct.color}}, ct.icon + "\u00A0" + ct.label));
       titleWrap.appendChild(span({style:{fontFamily:"'Space Mono',monospace",fontSize:"7px",color:"var(--dim)",letterSpacing:"0.1em",textTransform:"uppercase"}}, ct.platformLabel));
       hdr.appendChild(titleWrap);
-      hdr.appendChild(span({class:"slot-scheduled-badge", style:{color:statusObj.color}}, "● " + statusObj.label));
+      hdr.appendChild(span({class:"slot-scheduled-badge", id:`status-badge-${ct.id}`, style:{color:statusObj.color}}, "● " + statusObj.label));
       panel.appendChild(hdr);
 
       // Sub-fields (genre, language, variant, text inputs)
@@ -1551,13 +1649,30 @@ self.addEventListener('fetch', e => {
           textInput.addEventListener("blur",   e => { e.target.style.borderColor = "var(--border)"; });
           fWrap.appendChild(textInput);
         } else {
-          const optRow = div({class:"slot-options-row"});
+          const optRow = div({class:"slot-options-row", id:`opt-row-${ct.id}-${f.key}`});
           (f.options || []).forEach(opt => {
             const isSel = slot[f.key] === opt;
             const chip = btn({
               class: "slot-option-chip" + (isSel ? " active" : ""),
               style: isSel ? { color: ct.color, borderColor: ct.color, background: ct.color + "15" } : {},
-              onclick: () => updateSlotField(ct.id, f.key, isSel ? "" : opt),
+              onclick: (e) => {
+                e.stopPropagation();
+                const currentVal = (state.edit.slots[ct.id] || {})[f.key] || "";
+                const newVal = currentVal === opt ? "" : opt;
+                updateSlotField(ct.id, f.key, newVal);
+                // Surgical update: toggle chip styles in-place
+                const row = document.getElementById(`opt-row-${ct.id}-${f.key}`);
+                if (row) {
+                  row.querySelectorAll(".slot-option-chip").forEach((ch, idx) => {
+                    const o = (f.options||[])[idx];
+                    const sel = o === newVal;
+                    ch.className = "slot-option-chip" + (sel ? " active" : "");
+                    ch.style.color = sel ? ct.color : "";
+                    ch.style.borderColor = sel ? ct.color : "";
+                    ch.style.background = sel ? ct.color + "15" : "";
+                  });
+                }
+              },
             }, opt);
             optRow.appendChild(chip);
           });
@@ -1569,13 +1684,38 @@ self.addEventListener('fetch', e => {
       // ── POST STATUS row (#19) ──────────────────────────────────────────────
       const statusWrap = div({class:"slot-subfield"});
       statusWrap.appendChild(div({class:"slot-subfield-label"}, "Post Status"));
-      const statusRow = div({class:"slot-options-row"});
+      const statusRow = div({class:"slot-options-row", id:`status-row-${ct.id}`});
       statuses.forEach(ps => {
         const isSel = currentStatus === ps.id;
         const chip = btn({
           class: "slot-option-chip" + (isSel ? " active" : ""),
           style: isSel ? { color: ps.color, borderColor: ps.color, background: ps.color + "18" } : {},
-          onclick: () => updateSlotField(ct.id, "postStatus", ps.id),
+          onclick: (e) => {
+            e.stopPropagation();
+            updateSlotField(ct.id, "postStatus", ps.id);
+            // Surgical update: update chip styles and header badge in-place
+            const row = document.getElementById(`status-row-${ct.id}`);
+            if (row) {
+              const allChips = row.querySelectorAll(".slot-option-chip");
+              const thisStatuses = getStatuses(CONTENT_TYPES.find(c=>c.id===ct.id));
+              allChips.forEach((ch, idx) => {
+                const s = thisStatuses[idx];
+                if (!s) return;
+                const sel = s.id === ps.id;
+                ch.className = "slot-option-chip" + (sel ? " active" : "");
+                ch.style.color = sel ? s.color : "";
+                ch.style.borderColor = sel ? s.color : "";
+                ch.style.background = sel ? s.color + "18" : "";
+              });
+            }
+            // Update header badge
+            const badge = document.getElementById(`status-badge-${ct.id}`);
+            if (badge) {
+              const newStatus = statuses.find(s => s.id === ps.id) || statuses[0];
+              badge.textContent = "● " + newStatus.label;
+              badge.style.color = newStatus.color;
+            }
+          },
         }, ps.label);
         statusRow.appendChild(chip);
       });
@@ -1595,7 +1735,7 @@ self.addEventListener('fetch', e => {
       urlInput.value = slot.liveUrl || "";
       urlInput.addEventListener("input", e => updateSlotField(ct.id, "liveUrl", e.target.value));
       urlInput.addEventListener("focus", e => { e.target.style.borderColor = ct.color; });
-      urlInput.addEventListener("blur",  e => { e.target.style.borderColor = "var(--border)"; });
+      urlInput.addEventListener("blur",  e => { e.target.style.borderColor = "var(--border)"; renderDetailBody(); });
       urlRow.appendChild(urlInput);
       if (slot.liveUrl) {
         urlRow.appendChild(btn({
@@ -1613,7 +1753,6 @@ self.addEventListener('fetch', e => {
       const dateInput = el("input", {
         type: "date",
         class: "slot-text-input",
-        style: { fontFamily:"'Space Mono',monospace", fontSize:"12px", cursor:"pointer" },
       });
       dateInput.value = slot.uploadDate || "";
       dateInput.addEventListener("change", e => updateSlotField(ct.id, "uploadDate", e.target.value));
@@ -1698,7 +1837,7 @@ self.addEventListener('fetch', e => {
                 background: done?`${meta.accent}0A`:"transparent",
                 border:`1px solid ${done?meta.accent+"40":"var(--border)"}`,
               },
-              onclick:()=>toggleTask(i),
+              onclick:(e)=>{e.stopPropagation();toggleTask(i);},
             },
               div({class:"task-checkbox", style:{
                 border:`1.5px solid ${done?meta.accent:"var(--dim)"}`,
@@ -1735,7 +1874,7 @@ self.addEventListener('fetch', e => {
               class:"copy-btn",
               onclick: () => {
                 if(!state.edit.caption) return;
-                navigator.clipboard.writeText(state.edit.caption).then(()=>showToast("✓ Caption copied")).catch(()=>showToast("Copy not available"));
+                fallbackCopy(state.edit.caption);
               },
             }, "⎘ Copy"),
           )
@@ -2224,14 +2363,11 @@ self.addEventListener('fetch', e => {
       div({class:"header-eyebrow"},"Content Journal · গল্পবলিয়ে অভিযাত্রিক"),
       el("h1",{},"গল্পবলিয়ে অভিযাত্রিক"),
       div({class:"header-dates"}, (function(){
-        const now = new Date();
-        // Week starts Monday to match the day strip (Mon–Sun)
-        const day = now.getDay(); // 0=Sun,1=Mon,...
-        const diffToMon = (day === 0) ? -6 : 1 - day;
-        const monStart = addDays(now, diffToMon);
-        const sunEnd   = addDays(monStart, 6);
+        const days = getDays();
+        const monStart = days[0];
+        const sunEnd   = days[6];
         const fmt = d => `${MONTHS[d.getMonth()].slice(0,3)} ${d.getDate()}`;
-        return `${fmt(monStart)} – ${fmt(sunEnd)}, ${now.getFullYear()} · Ongoing`;
+        return `${fmt(monStart)} – ${fmt(sunEnd)}, ${monStart.getFullYear()} · Ongoing`;
       })()),
       div({class:"stats-row"},
         ...[ ["Episodes Titled",tl], ["Tasks Done",td], ["Completion",pct+"%"], ["Week",weekNum(state.ws)] ]
