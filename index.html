@@ -2028,92 +2028,151 @@ self.addEventListener('fetch', e => {
     );
   }
 
-  // ─── BUILD: IDEA BANK (#6) ────────────────────────────────────────────────
-  function buildIdeaBank() {
-    // FAB button
-    const fab = btn({
-      id: "idea-fab",
-      onclick: () => { state.ideaBankOpen = !state.ideaBankOpen; renderIdeaBank(); },
-    }, "💡");
+  // ─── BUILD: IDEA BANK ────────────────────────────────────────────────────
+  function mountFab() {
+    if(document.getElementById("idea-fab")) return; // already mounted
+    const fab = document.createElement("button");
+    fab.id = "idea-fab";
+    fab.setAttribute("aria-label", "Idea Bank");
+    fab.textContent = "💡";
+    fab.addEventListener("click", () => {
+      state.ideaBankOpen = !state.ideaBankOpen;
+      updateFabBadge();
+      if(state.ideaBankOpen) openDrawer();
+      else closeDrawer();
+    });
+    document.body.appendChild(fab);
+  }
+
+  function updateFabBadge() {
+    const fab = document.getElementById("idea-fab");
+    if(!fab) return;
+    // Remove existing badge
+    const old = fab.querySelector(".fab-badge");
+    if(old) old.remove();
     if(state.ideas.length > 0) {
-      const badge = span({class:"fab-badge"}, String(state.ideas.length > 9 ? "9+" : state.ideas.length));
+      const badge = document.createElement("span");
+      badge.className = "fab-badge";
+      badge.textContent = state.ideas.length > 9 ? "9+" : String(state.ideas.length);
       fab.appendChild(badge);
     }
+  }
 
-    const container = div({});
-    container.appendChild(fab);
+  function openDrawer() {
+    closeDrawer(); // remove any existing first
+    const drawer = document.createElement("div");
+    drawer.id = "idea-drawer";
 
-    if(state.ideaBankOpen) {
-      const drawer = div({id:"idea-drawer"});
+    // Header
+    const hdr = document.createElement("div");
+    hdr.className = "idea-drawer-header";
+    hdr.innerHTML = `<div><div class="idea-drawer-title">💡 Idea Bank</div><div class="idea-drawer-sub">${state.ideas.length} IDEAS · CAPTURE EVERYTHING</div></div>`;
+    const closeBtn = document.createElement("button");
+    closeBtn.style.cssText = "background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0;";
+    closeBtn.textContent = "✕";
+    closeBtn.addEventListener("click", () => { state.ideaBankOpen = false; closeDrawer(); });
+    hdr.appendChild(closeBtn);
+    drawer.appendChild(hdr);
 
-      // Header
-      const hdr = div({class:"idea-drawer-header"},
-        div({},
-          div({class:"idea-drawer-title"}, "💡 Idea Bank"),
-          div({class:"idea-drawer-sub"}, `${state.ideas.length} IDEAS · CAPTURE EVERYTHING`),
-        ),
-        btn({
-          style:{background:"none",border:"none",color:"var(--muted)",fontSize:"18px",cursor:"pointer",padding:"0"},
-          onclick: () => { state.ideaBankOpen = false; renderIdeaBank(); }
-        }, "✕")
-      );
-      drawer.appendChild(hdr);
+    // Input row
+    const inputRow = document.createElement("div");
+    inputRow.className = "idea-input-row";
+    const ideaInput = document.createElement("input");
+    ideaInput.type = "text";
+    ideaInput.placeholder = "Write any story idea, book title, hook, concept...";
+    const addBtn = document.createElement("button");
+    addBtn.className = "idea-add-btn";
+    addBtn.textContent = "+ Add";
+    const doAdd = () => {
+      if(!ideaInput.value.trim()) return;
+      addIdea(ideaInput.value);
+      ideaInput.value = "";
+      updateFabBadge();
+      refreshDrawerList();
+      showToast("💡 Idea saved");
+    };
+    addBtn.addEventListener("click", doAdd);
+    ideaInput.addEventListener("keydown", e => { if(e.key === "Enter") doAdd(); });
+    inputRow.appendChild(ideaInput);
+    inputRow.appendChild(addBtn);
+    drawer.appendChild(inputRow);
 
-      // Input row
-      const inputRow = div({class:"idea-input-row"});
-      const ideaInput = el("input", {type:"text", placeholder:"Write any story idea, book title, hook, concept..."});
-      const addBtn = btn({class:"idea-add-btn", onclick:()=>{
-        if(!ideaInput.value.trim()) return;
-        addIdea(ideaInput.value);
-        ideaInput.value = "";
-        renderIdeaBank();
-        showToast("💡 Idea saved");
-      }}, "+ Add");
-      ideaInput.addEventListener("keydown", e => { if(e.key==="Enter"){ addBtn.click(); } });
-      inputRow.appendChild(ideaInput);
-      inputRow.appendChild(addBtn);
-      drawer.appendChild(inputRow);
+    // List
+    const list = document.createElement("div");
+    list.id = "idea-list";
+    list.className = "idea-list";
+    drawer.appendChild(list);
 
-      // List
-      const list = div({class:"idea-list"});
-      const sorted = [...state.ideas].sort((a,b) => (b.pinned?1:0)-(a.pinned?1:0));
-      if(sorted.length === 0) {
-        list.appendChild(div({class:"idea-empty"}, "NO IDEAS YET · TYPE ABOVE TO START"));
-      } else {
-        sorted.forEach(idea => {
-          const ts = new Date(idea.ts);
-          const tsStr = `${ts.getDate()} ${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][ts.getMonth()]} ${ts.getFullYear()}`;
-          const item = div({class:"idea-item"},
-            btn({class:"idea-pin-btn"+(idea.pinned?" pinned":""), onclick:()=>{ pinIdea(idea.id); renderIdeaBank(); }}, idea.pinned?"★":"☆"),
-            div({class:"flex-1"},
-              div({class:"idea-text"}, idea.text),
-              div({class:"idea-ts"}, tsStr),
-            ),
-            btn({class:"idea-del-btn", onclick:()=>{ if(confirm("Delete this idea?")){ deleteIdea(idea.id); renderIdeaBank(); } }}, "✕")
-          );
-          list.appendChild(item);
+    document.body.appendChild(drawer);
+    refreshDrawerList();
+  }
+
+  function closeDrawer() {
+    const d = document.getElementById("idea-drawer");
+    if(d) d.remove();
+  }
+
+  function refreshDrawerList() {
+    const list = document.getElementById("idea-list");
+    if(!list) return;
+    list.innerHTML = "";
+    const sorted = [...state.ideas].sort((a,b) => (b.pinned?1:0)-(a.pinned?1:0));
+    if(sorted.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "idea-empty";
+      empty.textContent = "NO IDEAS YET · TYPE ABOVE TO START";
+      list.appendChild(empty);
+    } else {
+      sorted.forEach(idea => {
+        const ts = new Date(idea.ts);
+        const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const tsStr = `${ts.getDate()} ${MONTHS_SHORT[ts.getMonth()]} ${ts.getFullYear()}`;
+
+        const item = document.createElement("div");
+        item.className = "idea-item";
+
+        const pinBtn = document.createElement("button");
+        pinBtn.className = "idea-pin-btn" + (idea.pinned ? " pinned" : "");
+        pinBtn.textContent = idea.pinned ? "★" : "☆";
+        pinBtn.addEventListener("click", () => { pinIdea(idea.id); updateFabBadge(); refreshDrawerList(); });
+
+        const middle = document.createElement("div");
+        middle.className = "flex-1";
+        const txt = document.createElement("div");
+        txt.className = "idea-text";
+        txt.textContent = idea.text;
+        const tsDom = document.createElement("div");
+        tsDom.className = "idea-ts";
+        tsDom.textContent = tsStr;
+        middle.appendChild(txt);
+        middle.appendChild(tsDom);
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "idea-del-btn";
+        delBtn.textContent = "✕";
+        delBtn.addEventListener("click", () => {
+          if(confirm("Delete this idea?")) {
+            deleteIdea(idea.id);
+            updateFabBadge();
+            refreshDrawerList();
+          }
         });
-      }
-      drawer.appendChild(list);
-      container.appendChild(drawer);
+
+        item.appendChild(pinBtn);
+        item.appendChild(middle);
+        item.appendChild(delBtn);
+        list.appendChild(item);
+      });
     }
-    return container;
   }
 
   function renderIdeaBank() {
-    const existing = document.getElementById("idea-fab");
-    const oldDrawer = document.getElementById("idea-drawer");
-    const newBank   = buildIdeaBank();
-    // Extract both children BEFORE any DOM insertion moves them out of newBank
-    const newFab    = newBank.children[0];
-    const newDrawer = newBank.children[1] || null;
-    if(existing) {
-      existing.replaceWith(newFab);
-    } else {
-      document.body.appendChild(newFab);
-    }
-    if(oldDrawer) oldDrawer.remove();
-    if(newDrawer) document.body.appendChild(newDrawer);
+    mountFab();
+    updateFabBadge();
+    // If drawer should be open but isn't, open it; if it's open but shouldn't be, close it
+    const drawerExists = !!document.getElementById("idea-drawer");
+    if(state.ideaBankOpen && !drawerExists) openDrawer();
+    if(!state.ideaBankOpen && drawerExists) closeDrawer();
   }
 
   // ─── MAIN RENDER ──────────────────────────────────────────────────────────
@@ -2193,17 +2252,8 @@ self.addEventListener('fetch', e => {
     const banner = buildInstallBanner();
     if(banner) root.appendChild(banner);
 
-    // Idea Bank FAB (rendered outside root, attached to body)
-    const existingFab = document.getElementById("idea-fab");
-    if(!existingFab) {
-      const bank = buildIdeaBank();
-      const bankFab    = bank.children[0];
-      const bankDrawer = bank.children[1] || null;
-      document.body.appendChild(bankFab);
-      if(bankDrawer) document.body.appendChild(bankDrawer);
-    } else {
-      renderIdeaBank();
-    }
+    // Idea Bank FAB + Drawer (outside root, attached to body)
+    renderIdeaBank();
   }
 
   // ─── PWA INSTALL ──────────────────────────────────────────────────────────
