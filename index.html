@@ -347,88 +347,10 @@
     }
     .slot-option-chip.active { opacity: 1; }
 
-    /* Upload date + scheduled row */
-    .slot-meta-row {
-      display: flex;
-      gap: 14px;
-      align-items: flex-end;
-      margin-top: 2px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
-    .slot-date-wrap { flex: 1; min-width: 148px; }
-    .slot-date-label {
-      display: block;
-      font-family: 'Space Mono', monospace;
-      font-size: 7px;
-      color: var(--dim);
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-    .slot-date-input {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      color: var(--text);
-      outline: none;
-      padding: 8px 11px;
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      -webkit-appearance: none;
-      transition: border-color 0.15s;
-      cursor: pointer;
-    }
-    .slot-date-input::-webkit-calendar-picker-indicator { filter: invert(0.4); cursor: pointer; }
-    .slot-sched-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding-bottom: 4px;
-    }
-    input[type="checkbox"] {
-      width: 15px;
-      height: 15px;
-      accent-color: var(--gold);
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    .slot-sched-label {
-      font-family: 'Space Mono', monospace;
-      font-size: 8px;
-      color: var(--muted);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      cursor: pointer;
-    }
+    /* Upload date + scheduled row — REMOVED (replaced by postStatus chips) */
 
-    /* Analytics */
-    .slot-analytics-label {
-      display: block;
-      font-family: 'Space Mono', monospace;
-      font-size: 7px;
-      color: var(--dim);
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-    .slot-analytics {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      color: var(--text);
-      outline: none;
-      padding: 9px 11px;
-      font-family: 'EB Garamond', serif;
-      font-size: 14px;
-      line-height: 1.6;
-      resize: vertical;
-      min-height: 72px;
-      transition: border-color 0.15s;
-    }
-    .slot-analytics::placeholder { color: var(--dim); font-style: italic; }
+    /* Analytics textarea — REMOVED (replaced by analytics-grid number inputs) */
+
 
     /* ── Slot text input ── */
     .slot-text-input {
@@ -542,11 +464,9 @@
     .week-row-slots { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
     .week-slot-badge {
       font-family: 'Space Mono', monospace;
-      font-size: 6px;
-      padding: 2px 5px;
-      border-radius: 2px;
-      border: 1px solid currentColor;
-      opacity: 0.75;
+      font-size: 7px;
+      color: var(--muted);
+      opacity: 0.85;
       white-space: nowrap;
     }
 
@@ -636,6 +556,204 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
+    /* ── Analytics grid (#3) ── */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .analytics-field { display: flex; flex-direction: column; gap: 4px; }
+    .analytics-field-label { font-family: 'Space Mono', monospace; font-size: 7px; color: var(--dim); letter-spacing: 0.15em; text-transform: uppercase; }
+    .analytics-field-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      outline: none;
+      padding: 6px 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      text-align: right;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+    .analytics-field-input::placeholder { color: var(--dim); }
+
+    /* ── Caption counter + copy (#12, #13) ── */
+    .caption-counter { font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 0.1em; transition: color 0.2s; }
+    .copy-btn {
+      background: none;
+      border: 1px solid var(--dim);
+      color: var(--muted);
+      border-radius: 4px;
+      padding: 3px 9px;
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .copy-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── Idea Bank FAB (#6) ── */
+    #idea-fab {
+      position: fixed;
+      bottom: 22px;
+      right: 18px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: var(--bg);
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 150;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 18px rgba(201,168,76,0.35);
+      transition: transform 0.15s, box-shadow 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #idea-fab:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(201,168,76,0.5); }
+    #idea-fab .fab-badge {
+      position: absolute;
+      top: -3px; right: -3px;
+      background: #A84C4C;
+      color: #fff;
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── Idea Bank drawer (#6) ── */
+    #idea-drawer {
+      position: fixed;
+      bottom: 0; right: 0;
+      width: min(380px, 100vw);
+      max-height: 70vh;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 14px 14px 0 0;
+      z-index: 160;
+      display: flex;
+      flex-direction: column;
+      animation: slideUp 0.25s ease;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
+    }
+    .idea-drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .idea-drawer-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      color: var(--gold);
+    }
+    .idea-drawer-sub {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      color: var(--dim);
+      letter-spacing: 0.15em;
+      margin-top: 2px;
+    }
+    .idea-input-row {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .idea-input-row input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      outline: none;
+      padding: 9px 12px;
+      font-family: 'EB Garamond', serif;
+      font-size: 15px;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+    .idea-input-row input:focus { border-color: var(--gold); }
+    .idea-add-btn {
+      background: var(--gold);
+      color: var(--bg);
+      border: none;
+      border-radius: 6px;
+      padding: 9px 14px;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .idea-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+    .idea-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 16px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+    .idea-item:hover { background: var(--card); }
+    .idea-pin-btn {
+      background: none;
+      border: none;
+      color: var(--dim);
+      cursor: pointer;
+      font-size: 13px;
+      padding: 0;
+      flex-shrink: 0;
+      margin-top: 2px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .idea-pin-btn.pinned { color: var(--gold); }
+    .idea-text {
+      flex: 1;
+      font-family: 'EB Garamond', serif;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .idea-ts {
+      font-family: 'Space Mono', monospace;
+      font-size: 7px;
+      color: var(--dim);
+      margin-top: 3px;
+    }
+    .idea-del-btn {
+      background: none;
+      border: none;
+      color: var(--dim);
+      cursor: pointer;
+      font-size: 13px;
+      padding: 2px 4px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.15s;
+    }
+    .idea-del-btn:hover { color: #A84C4C; }
+    .flex-1 { flex: 1; min-width: 0; }
+    .idea-empty { padding: 28px 20px; text-align: center; font-family: 'Space Mono', monospace; font-size: 9px; color: var(--dim); letter-spacing: 0.15em; }
+
     /* ── Scrollbar ── */
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
@@ -710,6 +828,9 @@ self.addEventListener('fetch', e => {
       id: "yt-audiobook",
       label: "YT Audiobook",
       icon: "🎧",
+      platform: "youtube",
+      platformLabel: "YouTube",
+      urlPlaceholder: "https://youtube.com/watch?v=...",
       color: "#C9A84C",
       fields: [
         {
@@ -737,6 +858,9 @@ self.addEventListener('fetch', e => {
       id: "yt-shorts-promo",
       label: "YT Shorts — Promo",
       icon: "📣",
+      platform: "youtube",
+      platformLabel: "YouTube",
+      urlPlaceholder: "https://youtube.com/shorts/...",
       color: "#CF7B4C",
       fields: [
         {
@@ -752,6 +876,9 @@ self.addEventListener('fetch', e => {
       id: "yt-shorts-info",
       label: "YT Shorts — Info Series",
       icon: "📚",
+      platform: "youtube",
+      platformLabel: "YouTube",
+      urlPlaceholder: "https://youtube.com/shorts/...",
       color: "#9B72CF",
       fields: []
     },
@@ -759,6 +886,9 @@ self.addEventListener('fetch', e => {
       id: "yt-shorts-bts",
       label: "YT Shorts — BTS",
       icon: "🎙️",
+      platform: "youtube",
+      platformLabel: "YouTube",
+      urlPlaceholder: "https://youtube.com/shorts/...",
       color: "#4A9F8B",
       fields: []
     },
@@ -766,6 +896,9 @@ self.addEventListener('fetch', e => {
       id: "insta-review",
       label: "Insta Book Review",
       icon: "📖",
+      platform: "instagram",
+      platformLabel: "Instagram",
+      urlPlaceholder: "https://instagram.com/p/...",
       color: "#A84C4C",
       fields: [
         {
@@ -800,6 +933,9 @@ self.addEventListener('fetch', e => {
       id: "insta-story",
       label: "Insta Story",
       icon: "📱",
+      platform: "instagram",
+      platformLabel: "Instagram",
+      urlPlaceholder: "https://instagram.com/stories/...",
       color: "#4C8FCF",
       fields: [
         {
@@ -814,6 +950,9 @@ self.addEventListener('fetch', e => {
       id: "insta-reel",
       label: "Insta Reel",
       icon: "🎬",
+      platform: "instagram",
+      platformLabel: "Instagram",
+      urlPlaceholder: "https://instagram.com/reel/...",
       color: "#CF4C7B",
       fields: [
         {
@@ -828,7 +967,20 @@ self.addEventListener('fetch', e => {
 
   // Helper: create a default slot state for a content type
   function defaultSlot(ct) {
-    const s = { active: false, scheduled: false, analytics: "" };
+    const s = {
+      active: false,
+      postStatus: "none",    // none | scheduled | live | reviewed
+      liveUrl: "",           // #2 live post URL
+      analyticsViews: "",    // #3 structured analytics
+      analyticsLikes: "",
+      analyticsComments: "",
+      analyticsSaves: "",
+      analyticsShares: "",
+      analyticsReach: "",
+      analytics: "",         // keep legacy field
+      caption: "",           // #5 split notes
+      hashtags: "",
+    };
     ct.fields.forEach(f => { s[f.key] = ""; });
     return s;
   }
@@ -931,14 +1083,14 @@ self.addEventListener('fetch', e => {
     const dow = date.getDay();
     const ann = isAnniversary(date);
     const META = {
-      1:{emoji:"📖",label:"Deep Dive",accent:"#9B72CF",platform:"YouTube · IG",format:"AI Image / Review",series:"Bookstagram / Deep Dive"},
-      2:{emoji:"📣",label:"Promo",accent:"#C9A84C",platform:"YouTube · IG",format:"Poster / AI Image",series:"Audiobook Promo"},
-      3:{emoji:"👻",label:"Lore Drop",accent:"#A84C4C",platform:"IG · YouTube Shorts",format:"AI Image / Animated Short",series:"Bookstagram / "+getWedSeries(date)},
-      4: ann ? {emoji:"🎉",label:"1-Year Anniversary!",accent:"#FFD700",isSpecial:true,platform:"YouTube · IG",format:"Special Video / BTS",series:"Golpoboliye Obhijatrik — 1 YEAR ANNIVERSARY"}
-             : {emoji:"🎙️",label:"Behind the Mic",accent:"#4A9F8B",platform:"IG · YouTube Shorts",format:"BTS / Animated Poster",series:"Behind the Mic"},
-      5:{emoji:"🎧",label:"MAIN RELEASE",accent:"#C9A84C",isMain:true,platform:"YouTube · IG",format:"Audiobook / AI Image",series:"Golpoboliye Obhijatrik"},
-      6:{emoji:"🌙",label:"Flex",accent:"#5A6878",isFlex:true,platform:"Flex Slot",format:"Varies",series:"Unscripted (Optional)"},
-      0:{emoji:"☕",label:"Cozy Reset",accent:"#6B9F76",platform:"IG",format:"AI Image",series:"Bookstagram"},
+      1:{emoji:"📖",label:"Deep Dive",accent:"#9B72CF",platform:"YouTube · IG",format:"AI Image / Review"},
+      2:{emoji:"📣",label:"Promo",accent:"#C9A84C",platform:"YouTube · IG",format:"Poster / AI Image"},
+      3:{emoji:"👻",label:"Lore Drop",accent:"#A84C4C",platform:"IG · YouTube Shorts",format:"AI Image / Animated Short"},
+      4: ann ? {emoji:"🎉",label:"1-Year Anniversary!",accent:"#FFD700",isSpecial:true,platform:"YouTube · IG",format:"Special Video / BTS"}
+             : {emoji:"🎙️",label:"Behind the Mic",accent:"#4A9F8B",platform:"IG · YouTube Shorts",format:"BTS / Animated Poster"},
+      5:{emoji:"🎧",label:"MAIN RELEASE",accent:"#C9A84C",isMain:true,platform:"YouTube · IG",format:"Audiobook / AI Image"},
+      6:{emoji:"🌙",label:"Flex",accent:"#5A6878",isFlex:true,platform:"Flex Slot",format:"Varies"},
+      0:{emoji:"☕",label:"Cozy Reset",accent:"#6B9F76",platform:"IG",format:"AI Image"},
     };
     return META[dow];
   }
@@ -965,8 +1117,8 @@ self.addEventListener('fetch', e => {
     ws: (function(){ const cw=wkStart(new Date()); return dateMs(cw)>=dateMs(wkStart(START_DATE))?cw:wkStart(START_DATE); })(),
     sel: null,
     entries: {},
-    // edit shape: { title, notes, tasks[], slots:{ctId:{active,fields...,uploadDate,scheduled,analytics}} }
-    edit: { title:"", notes:"", tasks:[], slots: defaultSlots() },
+    // edit shape: { title, caption, hashtags, notes, tasks[], slots:{ctId:{active,postStatus,liveUrl,analyticsViews,...}} }
+    edit: { title:"", caption:"", hashtags:"", notes:"", tasks:[], slots: defaultSlots() },
     status: "idle",
     loaded: false,
     view: "week",
@@ -974,6 +1126,8 @@ self.addEventListener('fetch', e => {
     deferredPrompt: null,
     showInstallBanner: false,
     overviewExtra: 0,
+    ideaBankOpen: false,
+    ideas: [],           // #6 idea bank: [{id, text, ts, pinned}]
   };
 
   // ─── STORAGE ──────────────────────────────────────────────────────────────
@@ -1115,6 +1269,8 @@ self.addEventListener('fetch', e => {
 
     state.edit = {
       title: stored?.title || "",
+      caption: stored?.caption || "",
+      hashtags: stored?.hashtags || "",
       notes: stored?.notes || "",
       tasks: stored?.tasks?.length === taskList.length ? stored.tasks : taskList.map(()=>false),
       slots: mergedSlots,
@@ -1155,7 +1311,7 @@ self.addEventListener('fetch', e => {
     if(!state.sel) return;
     const tk = getTaxonomyKey(state.sel);
     const taskList = TASKS[tk] || [];
-    state.edit = { title:"", notes:"", tasks:taskList.map(()=>false), slots:defaultSlots() };
+    state.edit = { title:"", caption:"", hashtags:"", notes:"", tasks:taskList.map(()=>false), slots:defaultSlots() };
     scheduleAutoSave();
     render();
   }
@@ -1194,8 +1350,40 @@ self.addEventListener('fetch', e => {
     body.replaceChildren(buildDetailBody());
   }
 
-  function updateTitle(val) { state.edit.title = val; scheduleAutoSave(); }
-  function updateNotes(val) { state.edit.notes = val; scheduleAutoSave(); }
+  function updateTitle(val)    { state.edit.title = val; scheduleAutoSave(); }
+  function updateCaption(val) {
+    state.edit.caption = val;
+    scheduleAutoSave();
+    // Update counter inline without full re-render
+    const counter = document.getElementById("caption-counter");
+    if(counter) {
+      counter.textContent = `${val.length}/2200`;
+      counter.style.color = val.length > 2200 ? "#A84C4C" : "var(--dim)";
+    }
+  }
+  function updateHashtags(val) { state.edit.hashtags = val; scheduleAutoSave(); }
+  function updateNotes(val)    { state.edit.notes = val; scheduleAutoSave(); }
+
+  // ─── IDEA BANK ────────────────────────────────────────────────────────────
+  function loadIdeas() {
+    try { const v = storageGet("ideas"); if(v) state.ideas = JSON.parse(v); } catch{}
+  }
+  function saveIdeas() {
+    try { storageSet("ideas", JSON.stringify(state.ideas)); } catch{}
+  }
+  function addIdea(text) {
+    if(!text.trim()) return;
+    state.ideas.unshift({ id: Date.now(), text: text.trim(), ts: new Date().toISOString(), pinned: false });
+    saveIdeas();
+  }
+  function deleteIdea(id) {
+    state.ideas = state.ideas.filter(i => i.id !== id);
+    saveIdeas();
+  }
+  function pinIdea(id) {
+    const idea = state.ideas.find(i => i.id === id);
+    if(idea) { idea.pinned = !idea.pinned; saveIdeas(); }
+  }
 
   // ─── RENDER HELPERS ───────────────────────────────────────────────────────
   function el(tag, attrs={}, ...children) {
@@ -1231,6 +1419,22 @@ self.addEventListener('fetch', e => {
   }
 
   // ─── BUILD: CONTENT SLOTS ─────────────────────────────────────────────────
+  const POST_STATUSES = {
+    youtube: [
+      { id:"none",      label:"Not Uploaded",    color:"var(--dim)" },
+      { id:"scheduled", label:"Scheduled in Studio", color:"#C9A84C" },
+      { id:"live",      label:"Live on YouTube",  color:"#4A9F6B" },
+      { id:"reviewed",  label:"Analytics Logged", color:"#9B72CF" },
+    ],
+    instagram: [
+      { id:"none",      label:"Not Posted",       color:"var(--dim)" },
+      { id:"scheduled", label:"Scheduled",         color:"#C9A84C" },
+      { id:"live",      label:"Posted & Live",     color:"#4A9F6B" },
+      { id:"reviewed",  label:"Analytics Logged",  color:"#9B72CF" },
+    ],
+  };
+  function getStatuses(ct) { return POST_STATUSES[ct.platform] || POST_STATUSES.youtube; }
+
   function buildContentSlots() {
     if (!state.sel) return div({});
     const meta = getDayMeta(state.sel);
@@ -1260,17 +1464,23 @@ self.addEventListener('fetch', e => {
       const slot = slots[ct.id] || defaultSlot(ct);
       if (!slot.active) return;
 
+      // Migrate legacy scheduled boolean → postStatus
+      const currentStatus = slot.postStatus || (slot.scheduled ? "scheduled" : "none");
+      const statuses = getStatuses(ct);
+
       const panel = div({
         class: "slot-panel",
         style: { borderColor: ct.color + "50", borderLeftWidth: "3px", borderLeftColor: ct.color }
       });
 
-      // Panel header
+      // Panel header with status badge
+      const statusObj = statuses.find(s => s.id === currentStatus) || statuses[0];
       const hdr = div({class:"slot-panel-header"});
-      hdr.appendChild(span({class:"slot-panel-title", style:{color:ct.color}}, ct.icon + "\u00A0" + ct.label));
-      if (slot.scheduled) {
-        hdr.appendChild(span({class:"slot-scheduled-badge"}, "✓ SCHEDULED"));
-      }
+      const titleWrap = div({style:{display:"flex",flexDirection:"column",gap:"2px"}});
+      titleWrap.appendChild(span({class:"slot-panel-title", style:{color:ct.color}}, ct.icon + "\u00A0" + ct.label));
+      titleWrap.appendChild(span({style:{fontFamily:"'Space Mono',monospace",fontSize:"7px",color:"var(--dim)",letterSpacing:"0.1em",textTransform:"uppercase"}}, ct.platformLabel));
+      hdr.appendChild(titleWrap);
+      hdr.appendChild(span({class:"slot-scheduled-badge", style:{color:statusObj.color}}, "● " + statusObj.label));
       panel.appendChild(hdr);
 
       // Sub-fields (genre, language, variant, text inputs)
@@ -1304,36 +1514,76 @@ self.addEventListener('fetch', e => {
         panel.appendChild(fWrap);
       });
 
-      // Scheduled row
-      const metaRow = div({class:"slot-meta-row"});
-
-      const schedWrap = div({class:"slot-sched-wrap"});
-      const checkId = "sched-" + ct.id;
-      const checkbox = el("input", {
-        type: "checkbox",
-        id: checkId,
+      // ── POST STATUS row (#19) ──────────────────────────────────────────────
+      const statusWrap = div({class:"slot-subfield"});
+      statusWrap.appendChild(div({class:"slot-subfield-label"}, "Post Status"));
+      const statusRow = div({class:"slot-options-row"});
+      statuses.forEach(ps => {
+        const isSel = currentStatus === ps.id;
+        const chip = btn({
+          class: "slot-option-chip" + (isSel ? " active" : ""),
+          style: isSel ? { color: ps.color, borderColor: ps.color, background: ps.color + "18" } : {},
+          onclick: () => { updateSlotField(ct.id, "postStatus", ps.id); updateSlotField(ct.id, "scheduled", ps.id === "scheduled" || ps.id === "live"); },
+        }, ps.label);
+        statusRow.appendChild(chip);
       });
-      if (slot.scheduled) checkbox.setAttribute("checked", "");
-      checkbox.checked = !!slot.scheduled;
-      checkbox.addEventListener("change", e => updateSlotField(ct.id, "scheduled", e.target.checked));
-      schedWrap.appendChild(checkbox);
-      schedWrap.appendChild(el("label", {for: checkId, class:"slot-sched-label"}, "Scheduled"));
-      metaRow.appendChild(schedWrap);
+      statusWrap.appendChild(statusRow);
+      panel.appendChild(statusWrap);
 
-      panel.appendChild(metaRow);
+      // ── LIVE URL row (#2) ──────────────────────────────────────────────────
+      const urlWrap = div({class:"slot-subfield"});
+      urlWrap.appendChild(div({class:"slot-subfield-label"}, "Live URL"));
+      const urlRow = div({style:{display:"flex",gap:"6px",alignItems:"center"}});
+      const urlInput = el("input", {
+        type:"text",
+        class:"slot-text-input",
+        placeholder: ct.urlPlaceholder || "https://...",
+        style:{fontFamily:"'Space Mono',monospace",fontSize:"11px",flex:"1"},
+      });
+      urlInput.value = slot.liveUrl || "";
+      urlInput.addEventListener("input", e => updateSlotField(ct.id, "liveUrl", e.target.value));
+      urlInput.addEventListener("focus", e => { e.target.style.borderColor = ct.color; });
+      urlInput.addEventListener("blur",  e => { e.target.style.borderColor = "var(--border)"; });
+      urlRow.appendChild(urlInput);
+      if (slot.liveUrl) {
+        urlRow.appendChild(btn({
+          class:"slot-url-open",
+          style:{background:"none",border:"1px solid var(--dim)",color:"var(--gold)",borderRadius:"4px",padding:"6px 8px",fontFamily:"'Space Mono',monospace",fontSize:"8px",cursor:"pointer",whiteSpace:"nowrap"},
+          onclick: () => window.open(slot.liveUrl, "_blank"),
+        }, "↗ Open"));
+      }
+      urlWrap.appendChild(urlRow);
+      panel.appendChild(urlWrap);
 
-      // Analytics section
-      const analyticsWrap = div({});
-      analyticsWrap.appendChild(el("label", {class:"slot-analytics-label"}, "Analytics"));
-      const analyticsArea = el("textarea", {
-        class: "slot-analytics",
-        placeholder: "Views · Likes · Comments · Reach · Saves · Shares...",
-        rows: "3",
-      }, slot.analytics || "");
-      analyticsArea.addEventListener("input", e => updateSlotField(ct.id, "analytics", e.target.value));
-      analyticsArea.addEventListener("focus", e => { e.target.style.borderColor = ct.color; });
-      analyticsArea.addEventListener("blur",  e => { e.target.style.borderColor = "var(--border)"; });
-      analyticsWrap.appendChild(analyticsArea);
+      // ── STRUCTURED ANALYTICS (#3) ──────────────────────────────────────────
+      const analyticsWrap = div({class:"slot-subfield"});
+      analyticsWrap.appendChild(div({class:"slot-subfield-label"}, "Analytics"));
+      const analyticsGrid = div({class:"analytics-grid"});
+      const analyticsFields = [
+        {key:"analyticsViews",    label:"Views"},
+        {key:"analyticsLikes",    label:"Likes"},
+        {key:"analyticsComments", label:"Comments"},
+        {key:"analyticsSaves",    label:"Saves"},
+        {key:"analyticsShares",   label:"Shares"},
+        {key:"analyticsReach",    label:"Reach"},
+      ];
+      analyticsFields.forEach(af => {
+        const fieldWrap = div({class:"analytics-field"});
+        fieldWrap.appendChild(div({class:"analytics-field-label"}, af.label));
+        const inp = el("input", {
+          type:"text",
+          inputmode:"numeric",
+          class:"analytics-field-input",
+          placeholder:"—",
+        });
+        inp.value = slot[af.key] || "";
+        inp.addEventListener("input", e => updateSlotField(ct.id, af.key, e.target.value));
+        inp.addEventListener("focus", e => { e.target.style.borderColor = ct.color; });
+        inp.addEventListener("blur",  e => { e.target.style.borderColor = "var(--border)"; });
+        fieldWrap.appendChild(inp);
+        analyticsGrid.appendChild(fieldWrap);
+      });
+      analyticsWrap.appendChild(analyticsGrid);
       panel.appendChild(analyticsWrap);
 
       wrap.appendChild(panel);
@@ -1404,12 +1654,55 @@ self.addEventListener('fetch', e => {
         )
       ),
 
+      // Caption (#5, #12, #13)
+      div({class:"mb-20"},
+        div({style:{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:"7px"}},
+          el("label",{class:"field-label",style:{margin:0}},"Caption"),
+          div({style:{display:"flex",gap:"8px",alignItems:"center"}},
+            span({
+              id:"caption-counter",
+              class:"caption-counter",
+              style:{color:(state.edit.caption||"").length>2200?"#A84C4C":"var(--dim)"},
+            }, `${(state.edit.caption||"").length}/2200`),
+            btn({
+              class:"copy-btn",
+              onclick: () => {
+                if(!state.edit.caption) return;
+                navigator.clipboard.writeText(state.edit.caption).then(()=>showToast("✓ Caption copied")).catch(()=>showToast("Copy not available"));
+              },
+            }, "⎘ Copy"),
+          )
+        ),
+        el("textarea",{
+          id:"caption-area",
+          placeholder:"Write your Instagram / YouTube caption here...",
+          rows:5,
+          style:{borderColor:"var(--border)"},
+          oninput: e => updateCaption(e.target.value),
+          onfocus: e=>e.target.style.borderColor=meta.accent,
+          onblur:  e=>e.target.style.borderColor="var(--border)",
+        },state.edit.caption||"")
+      ),
+
+      // Hashtags (#5)
+      div({class:"mb-20"},
+        el("label",{class:"field-label"},"Hashtags"),
+        el("textarea",{
+          placeholder:"#golpoboliye #audiobook #banglahorror ...",
+          rows:2,
+          style:{borderColor:"var(--border)",fontFamily:"'Space Mono',monospace",fontSize:"12px",minHeight:"60px"},
+          oninput: e=>updateHashtags(e.target.value),
+          onfocus: e=>e.target.style.borderColor=meta.accent,
+          onblur:  e=>e.target.style.borderColor="var(--border)",
+        },state.edit.hashtags||"")
+      ),
+
       // Notes
       div({class:"mb-20"},
-        el("label",{class:"field-label"},"Notes / Script Ideas / References"),
+        el("label",{class:"field-label"},"Script Ideas / SEO Notes / References"),
         el("textarea",{
-          placeholder:"Script ideas, lore references, thumbnail concepts, SEO notes...",
-          rows:5,
+          placeholder:"Script outline, lore references, thumbnail concepts, SEO tags, timestamps...",
+          rows:4,
           style:{borderColor:"var(--border)"},
           oninput: e=>updateNotes(e.target.value),
           onfocus: e=>e.target.style.borderColor=meta.accent,
@@ -1442,7 +1735,7 @@ self.addEventListener('fetch', e => {
         div({class:"detail-date",style:{color:meta.accent}},
           `${DAY_F[state.sel.getDay()]} · ${MONTHS[state.sel.getMonth()]} ${state.sel.getDate()}, ${state.sel.getFullYear()}`
         ),
-        div({class:"detail-series"},`${meta.emoji} ${meta.series}`),
+        div({class:"detail-series"},`${meta.emoji} ${meta.label}`),
         div({class:"detail-platform"},`${meta.platform} · ${meta.format}`),
         meta.isSpecial ? div({class:"detail-milestone"},"★ 1-YEAR MILESTONE ★") : null,
       ),
@@ -1520,12 +1813,14 @@ self.addEventListener('fetch', e => {
               div({class:"week-row-title",style:{color:e?.title?"var(--text)":"var(--muted)",fontStyle:e?.title?"normal":"italic"}},
                 e?.title||"Untitled — click to fill in"
               ),
-              div({class:"week-row-series"},m.series),
+              
               activeSlots.length>0 ? div({class:"week-row-slots"},
                 ...activeSlots.map(ct => {
                   const slot = e.slots[ct.id];
+                  const statusId = slot.postStatus || (slot.scheduled?"scheduled":"none");
+                  const statusObj = getStatuses(ct).find(s=>s.id===statusId)||getStatuses(ct)[0];
                   const badge = span({class:"week-slot-badge", style:{color:ct.color}},
-                    ct.icon + " " + ct.label + (slot.scheduled?" ✓":"")
+                    ct.icon + " " + ct.label + (statusId!=="none"?" · "+statusObj.label:"")
                   );
                   return badge;
                 })
@@ -1544,7 +1839,7 @@ self.addEventListener('fetch', e => {
     const weeks = allWeeks(state.overviewExtra);
     const totalWks = weeks.length;
     return div({},
-      div({class:"overview-title"},`Week 1 – Week ${totalWks} · May 2026 · Ongoing`),
+      div({class:"overview-title"},`Week 1 – Week ${totalWks} · ${MONTHS[START_DATE.getMonth()]} ${START_DATE.getFullYear()} · Ongoing`),
       div({class:"overview-weeks"},
         ...weeks.map(wk => {
           const wkDays    = Array.from({length:7},(_,i)=>addDays(wk,i));
@@ -1621,6 +1916,93 @@ self.addEventListener('fetch', e => {
     );
   }
 
+  // ─── BUILD: IDEA BANK (#6) ────────────────────────────────────────────────
+  function buildIdeaBank() {
+    // FAB button
+    const fab = btn({
+      id: "idea-fab",
+      onclick: () => { state.ideaBankOpen = !state.ideaBankOpen; renderIdeaBank(); },
+    }, "💡");
+    const unpinned = state.ideas.filter(i => !i.pinned);
+    if(state.ideas.length > 0) {
+      const badge = span({class:"fab-badge"}, String(state.ideas.length > 9 ? "9+" : state.ideas.length));
+      fab.appendChild(badge);
+    }
+
+    const container = div({});
+    container.appendChild(fab);
+
+    if(state.ideaBankOpen) {
+      const drawer = div({id:"idea-drawer"});
+
+      // Header
+      const hdr = div({class:"idea-drawer-header"},
+        div({},
+          div({class:"idea-drawer-title"}, "💡 Idea Bank"),
+          div({class:"idea-drawer-sub"}, `${state.ideas.length} IDEAS · CAPTURE EVERYTHING`),
+        ),
+        btn({
+          style:{background:"none",border:"none",color:"var(--muted)",fontSize:"18px",cursor:"pointer",padding:"0"},
+          onclick: () => { state.ideaBankOpen = false; renderIdeaBank(); }
+        }, "✕")
+      );
+      drawer.appendChild(hdr);
+
+      // Input row
+      const inputRow = div({class:"idea-input-row"});
+      const ideaInput = el("input", {type:"text", placeholder:"Write any story idea, book title, hook, concept..."});
+      const addBtn = btn({class:"idea-add-btn", onclick:()=>{
+        if(!ideaInput.value.trim()) return;
+        addIdea(ideaInput.value);
+        ideaInput.value = "";
+        renderIdeaBank();
+        showToast("💡 Idea saved");
+      }}, "+ Add");
+      ideaInput.addEventListener("keydown", e => { if(e.key==="Enter"){ addBtn.click(); } });
+      inputRow.appendChild(ideaInput);
+      inputRow.appendChild(addBtn);
+      drawer.appendChild(inputRow);
+
+      // List
+      const list = div({class:"idea-list"});
+      const sorted = [...state.ideas].sort((a,b) => (b.pinned?1:0)-(a.pinned?1:0));
+      if(sorted.length === 0) {
+        list.appendChild(div({class:"idea-empty"}, "NO IDEAS YET · TYPE ABOVE TO START"));
+      } else {
+        sorted.forEach(idea => {
+          const ts = new Date(idea.ts);
+          const tsStr = `${ts.getDate()} ${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][ts.getMonth()]} ${ts.getFullYear()}`;
+          const item = div({class:"idea-item"},
+            btn({class:"idea-pin-btn"+(idea.pinned?" pinned":""), onclick:()=>{ pinIdea(idea.id); renderIdeaBank(); }}, idea.pinned?"★":"☆"),
+            div({class:"flex-1"},
+              div({class:"idea-text"}, idea.text),
+              div({class:"idea-ts"}, tsStr),
+            ),
+            btn({class:"idea-del-btn", onclick:()=>{ if(confirm("Delete this idea?")){ deleteIdea(idea.id); renderIdeaBank(); } }}, "✕")
+          );
+          list.appendChild(item);
+        });
+      }
+      drawer.appendChild(list);
+      container.appendChild(drawer);
+    }
+    return container;
+  }
+
+  function renderIdeaBank() {
+    const existing = document.getElementById("idea-fab");
+    const drawer   = document.getElementById("idea-drawer");
+    const newBank  = buildIdeaBank();
+    if(existing) {
+      existing.replaceWith(newBank.firstChild);
+      if(drawer) drawer.remove();
+      if(state.ideaBankOpen && newBank.children.length > 1) document.body.appendChild(newBank.lastChild);
+    } else {
+      document.body.appendChild(newBank.firstChild);
+      if(state.ideaBankOpen && newBank.children.length > 1) document.body.appendChild(newBank.lastChild);
+    }
+  }
+
   // ─── MAIN RENDER ──────────────────────────────────────────────────────────
   function render() {
     const root = document.getElementById("root");
@@ -1634,7 +2016,13 @@ self.addEventListener('fetch', e => {
     const header = el("header",{},
       div({class:"header-eyebrow"},"Content Journal · গল্পবলিয়ে অভিযাত্রিক"),
       el("h1",{},"গল্পবলিয়ে অভিযাত্রিক"),
-      div({class:"header-dates"},"May 4, 2026 · Ongoing"),
+      div({class:"header-dates"}, (function(){
+        const now = new Date();
+        const wkS = wkStart(now);
+        const wkE = addDays(wkS, 6);
+        const fmt = d => `${MONTHS[d.getMonth()].slice(0,3)} ${d.getDate()}`;
+        return `${fmt(wkS)} – ${fmt(wkE)}, ${now.getFullYear()} · Ongoing`;
+      })()),
       div({class:"stats-row"},
         ...[ ["Episodes Titled",tl], ["Tasks Done",td], ["Completion",pct+"%"], ["Week",weekNum(state.ws)] ]
           .map(([l,v])=>div({class:"stat-item"},div({class:"stat-val"},String(v)),div({class:"stat-label"},l)))
@@ -1685,6 +2073,16 @@ self.addEventListener('fetch', e => {
 
     const banner = buildInstallBanner();
     if(banner) root.appendChild(banner);
+
+    // Idea Bank FAB (rendered outside root, attached to body)
+    const existingFab = document.getElementById("idea-fab");
+    if(!existingFab) {
+      const bank = buildIdeaBank();
+      document.body.appendChild(bank.firstChild);
+      if(state.ideaBankOpen && bank.children.length > 1) document.body.appendChild(bank.lastChild);
+    } else {
+      renderIdeaBank();
+    }
   }
 
   // ─── PWA INSTALL ──────────────────────────────────────────────────────────
@@ -1713,6 +2111,7 @@ self.addEventListener('fetch', e => {
 
   // ─── BOOT ─────────────────────────────────────────────────────────────────
   loadEntries();
+  loadIdeas();
   render();
   </script>
 </body>
