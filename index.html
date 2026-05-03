@@ -27,6 +27,18 @@
       --dim:     #3A3028;
     }
 
+    :root.light {
+      --bg:      #F5F0E8;
+      --surface: #EDE7DA;
+      --card:    #E4DDD0;
+      --cardHov: #DAD2C4;
+      --border:  #C8BEA8;
+      --gold:    #8B6914;
+      --text:    #2A2018;
+      --muted:   #7A6A52;
+      --dim:     #A89880;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
@@ -48,6 +60,7 @@
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       background-size: 200px;
     }
+    :root.light body::before { opacity: 0.04; filter: invert(1); }
 
     #root {
       position: relative;
@@ -752,6 +765,28 @@
     .idea-del-btn:hover { color: #A84C4C; }
     .flex-1 { flex: 1; min-width: 0; }
     .idea-empty { padding: 28px 20px; text-align: center; font-family: 'Space Mono', monospace; font-size: 9px; color: var(--dim); letter-spacing: 0.15em; }
+
+    /* ── Theme toggle ── */
+    #theme-toggle {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 16px;
+      cursor: pointer;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #theme-toggle:hover { border-color: var(--gold); }
 
     /* ── Scrollbar ── */
     ::-webkit-scrollbar { width: 5px; }
@@ -2280,10 +2315,32 @@ self.addEventListener('fetch', e => {
   }
   function dismissInstall() { state.showInstallBanner = false; render(); }
 
+  // ─── THEME ────────────────────────────────────────────────────────────────
+  function loadTheme() {
+    try { if(localStorage.getItem("theme") === "light") document.documentElement.classList.add("light"); } catch{}
+  }
+  function mountThemeToggle() {
+    if(document.getElementById("theme-toggle")) return;
+    const btn = document.createElement("button");
+    btn.id = "theme-toggle";
+    btn.setAttribute("aria-label", "Toggle theme");
+    const isLight = () => document.documentElement.classList.contains("light");
+    btn.textContent = isLight() ? "🌙" : "☀️";
+    btn.addEventListener("click", () => {
+      document.documentElement.classList.toggle("light");
+      btn.textContent = isLight() ? "🌙" : "☀️";
+      try { localStorage.setItem("theme", isLight() ? "light" : "dark"); } catch{}
+    });
+    document.body.appendChild(btn);
+  }
+
   // ─── BOOT ─────────────────────────────────────────────────────────────────
+  loadTheme();
   loadEntries();
   loadIdeas();
   render();
+  mountFab();
+  mountThemeToggle();
   </script>
 </body>
 </html>
