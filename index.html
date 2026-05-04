@@ -796,6 +796,81 @@
     }
     #theme-toggle:hover { border-color: var(--gold); }
 
+    /* ── Deadlines view ── */
+    .deadline-view { margin-bottom: 28px; }
+    .deadline-section { margin-bottom: 28px; }
+    .deadline-section-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .deadline-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 13px 14px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .deadline-card:hover { background: var(--cardHov); }
+    .deadline-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .deadline-date {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .deadline-status {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 0.1em;
+    }
+    .deadline-card-mid {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .deadline-ct-icon { font-size: 18px; line-height: 1; margin-top: 2px; flex-shrink: 0; }
+    .deadline-ct-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+    .deadline-entry-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .deadline-prog-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .deadline-empty {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      color: var(--dim);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 10px 0;
+    }
+
     /* ── Scrollbar ── */
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
@@ -1023,7 +1098,6 @@ self.addEventListener('fetch', e => {
       active: false,
       postStatus: "none",
       liveUrl: "",
-      uploadDate: "",
       analyticsViews: "",
       analyticsLikes: "",
       analyticsComments: "",
@@ -1032,6 +1106,7 @@ self.addEventListener('fetch', e => {
       analyticsReach: "",
       caption: "",
       hashtags: "",
+      tasks: (SLOT_TASKS[ct.id] || []).map(() => false),
     };
     ct.fields.forEach(f => { s[f.key] = ""; });
     return s;
@@ -1111,6 +1186,72 @@ self.addEventListener('fetch', e => {
       "Post IG Feed",
       "Upload IG Story",
       "Scheduled ✓",
+    ],
+  };
+
+  // ─── PER-SLOT TASK PIPELINES ──────────────────────────────────────────────
+  const SLOT_TASKS = {
+    "yt-audiobook": [
+      "Finalise the story",
+      "Write / revise the script",
+      "Record other voice actors",
+      "Record my own parts",
+      "Build timeline & edit",
+      "Add SFX",
+      "Add BGM",
+      "Master the audio",
+      "Create thumbnail (AI Image)",
+      "Write SEO title, tags & description",
+      "Render & upload full video to YouTube",
+      "Post IG Feed + Story",
+    ],
+    "yt-shorts-promo": [
+      "Choose promo angle",
+      "Design poster / AI image",
+      "Create IG Story graphic",
+      "Write anticipation copy",
+      "Upload YouTube Short",
+      "Upload to YouTube Community",
+    ],
+    "yt-shorts-info": [
+      "Research & write script",
+      "Generate AI image / art (9:16)",
+      "Animate with Kling / Wan 2.2",
+      "Write SEO title & description",
+      "Write caption",
+      "Upload YouTube Short",
+      "Post IG Reel",
+    ],
+    "yt-shorts-bts": [
+      "Write BTS script / notes",
+      "Record / capture BTS footage",
+      "Create animated poster teaser",
+      "Edit clip",
+      "Write caption",
+      "Upload YouTube Short",
+      "Post IG Story teaser",
+    ],
+    "insta-review": [
+      "Read the book",
+      "Plan the review angle / hook",
+      "Create AI image (desk aesthetic)",
+      "Write caption / review text",
+      "Edit & finalise image",
+      "Post IG Feed",
+      "Upload IG Story",
+    ],
+    "insta-story": [
+      "Plan story content",
+      "Create / source image",
+      "Write story text & stickers",
+      "Post IG Story",
+    ],
+    "insta-reel": [
+      "Plan reel concept",
+      "Create AI image / video",
+      "Write caption",
+      "Add audio / music",
+      "Post IG Reel",
     ],
   };
 
@@ -1304,12 +1445,41 @@ self.addEventListener('fetch', e => {
   function getDays()   { return Array.from({length:7},(_,i)=>addDays(state.ws,i)); }
   function doneFrac(date) {
     const e = state.entries[fmtKey(date)];
-    if(!e?.tasks?.length) return 0;
-    return e.tasks.filter(t => t === true).length / e.tasks.length;
+    if (!e?.slots) return 0;
+    let total = 0, done = 0;
+    CONTENT_TYPES.forEach(ct => {
+      const slot = e.slots[ct.id];
+      if (slot?.active) {
+        const defs = SLOT_TASKS[ct.id] || [];
+        total += defs.length;
+        done += (slot.tasks || []).filter(t => t === true).length;
+      }
+    });
+    return total > 0 ? done / total : 0;
   }
   function totalLogged() { return Object.keys(state.entries).filter(k=>state.entries[k]?.title).length; }
-  function totalDone()   { return Object.values(state.entries).reduce((a,e)=>a+(e?.tasks?.filter(t=>t===true).length||0),0); }
-  function totalTasks()  { return Object.values(state.entries).reduce((a,e)=>a+(e?.tasks?.length||0),0); }
+  function totalDone() {
+    return Object.values(state.entries).reduce((a, e) => {
+      if (!e?.slots) return a;
+      let done = 0;
+      CONTENT_TYPES.forEach(ct => {
+        const slot = e.slots[ct.id];
+        if (slot?.active) done += (slot.tasks || []).filter(t => t === true).length;
+      });
+      return a + done;
+    }, 0);
+  }
+  function totalTasks() {
+    return Object.values(state.entries).reduce((a, e) => {
+      if (!e?.slots) return a;
+      let total = 0;
+      CONTENT_TYPES.forEach(ct => {
+        const slot = e.slots[ct.id];
+        if (slot?.active) total += (SLOT_TASKS[ct.id] || []).length;
+      });
+      return a + total;
+    }, 0);
+  }
   function overallPct()  { const t=totalTasks(); return t>0?Math.round((totalDone()/t)*100):0; }
   function allWeeks(extraWeeks) {
     const horizon = addDays(wkStart(new Date()), (8 + (extraWeeks||0))*7);
@@ -1327,8 +1497,6 @@ self.addEventListener('fetch', e => {
   function selectDay(date) {
     state.sel = date;
     const stored = state.entries[fmtKey(date)];
-    const tk = getTaxonomyKey(date);
-    const taskList = TASKS[tk] || [];
 
     // Merge stored slots with defaults (handles old entries + missing keys)
     const defSlots = defaultSlots();
@@ -1336,7 +1504,15 @@ self.addEventListener('fetch', e => {
     if (stored?.slots) {
       CONTENT_TYPES.forEach(ct => {
         if (stored.slots[ct.id]) {
-          mergedSlots[ct.id] = { ...defSlots[ct.id], ...stored.slots[ct.id] };
+          const defSlot = defSlots[ct.id];
+          const storedSlot = stored.slots[ct.id];
+          // Merge tasks: if stored tasks length matches definition, use stored; else reset
+          const taskDefs = SLOT_TASKS[ct.id] || [];
+          const storedTasks = storedSlot.tasks || [];
+          const mergedTasks = storedTasks.length === taskDefs.length
+            ? storedTasks
+            : taskDefs.map((_, i) => storedTasks[i] === true);
+          mergedSlots[ct.id] = { ...defSlot, ...storedSlot, tasks: mergedTasks };
         }
       });
     }
@@ -1346,7 +1522,7 @@ self.addEventListener('fetch', e => {
       caption: stored?.caption || "",
       hashtags: stored?.hashtags || "",
       notes: stored?.notes || "",
-      tasks: stored?.tasks?.length === taskList.length ? stored.tasks : taskList.map(()=>false),
+      tasks: [],
       slots: mergedSlots,
     };
     state.status = "idle";
@@ -1358,6 +1534,44 @@ self.addEventListener('fetch', e => {
   }
 
   function clearSel() { state.sel=null; render(); }
+
+  function toggleSlotTask(ctId, taskIndex) {
+    const slots = JSON.parse(JSON.stringify(state.edit.slots || defaultSlots()));
+    const ct = CONTENT_TYPES.find(c => c.id === ctId);
+    if (!ct) return;
+    const slot = slots[ctId] || defaultSlot(ct);
+    const tasks = [...(slot.tasks || [])];
+    tasks[taskIndex] = !tasks[taskIndex];
+    slots[ctId] = { ...slot, tasks };
+    state.edit.slots = slots;
+    scheduleAutoSave();
+    // Surgical DOM update for this slot's task row
+    const row = document.getElementById(`slot-task-${ctId}-${taskIndex}`);
+    if (row) {
+      const done = tasks[taskIndex];
+      row.style.background = done ? `${ct.color}0A` : "transparent";
+      row.style.border = `1px solid ${done ? ct.color + "40" : "var(--border)"}`;
+      const cb = row.querySelector(".task-checkbox");
+      if (cb) { cb.style.border = `1.5px solid ${done ? ct.color : "var(--dim)"}`; cb.style.background = done ? `${ct.color}25` : "transparent"; cb.textContent = done ? "✓" : ""; }
+      const txt = row.querySelector(".task-text");
+      if (txt) txt.className = "task-text" + (done ? " done" : "");
+    }
+    // Update slot task progress
+    const fillEl = document.getElementById(`slot-task-fill-${ctId}`);
+    const labelEl = document.getElementById(`slot-task-label-${ctId}`);
+    const defs = SLOT_TASKS[ctId] || [];
+    const doneCnt = tasks.filter(t => t === true).length;
+    const pct = defs.length > 0 ? (doneCnt / defs.length) * 100 : 0;
+    if (fillEl) fillEl.style.width = `${pct}%`;
+    if (labelEl) {
+      const first = labelEl.firstChild;
+      if (first && first.nodeType === 3) first.textContent = `${doneCnt}/${defs.length}`;
+      const existing = labelEl.querySelector(".all-done-badge");
+      if (doneCnt === defs.length && defs.length > 0) {
+        if (!existing) { const b = document.createElement("span"); b.className = "all-done-badge"; b.textContent = " ALL DONE"; labelEl.appendChild(b); }
+      } else { if (existing) existing.remove(); }
+    }
+  }
 
   function prevWeek() {
     const nw = addDays(state.ws,-7);
@@ -1385,9 +1599,7 @@ self.addEventListener('fetch', e => {
 
   function clearEntry() {
     if(!state.sel) return;
-    const tk = getTaxonomyKey(state.sel);
-    const taskList = TASKS[tk] || [];
-    state.edit = { title:"", caption:"", hashtags:"", notes:"", tasks:taskList.map(()=>false), slots:defaultSlots() };
+    state.edit = { title:"", caption:"", hashtags:"", notes:"", tasks:[], slots:defaultSlots() };
     scheduleAutoSave();
     render();
   }
@@ -1747,20 +1959,6 @@ self.addEventListener('fetch', e => {
       urlWrap.appendChild(urlRow);
       panel.appendChild(urlWrap);
 
-      // ── UPLOAD / POST DATE (#8) ────────────────────────────────────────────
-      const dateWrap = div({class:"slot-subfield"});
-      dateWrap.appendChild(div({class:"slot-subfield-label"}, ct.platform === "instagram" ? "Post Date" : "Upload Date"));
-      const dateInput = el("input", {
-        type: "date",
-        class: "slot-text-input",
-      });
-      dateInput.value = slot.uploadDate || "";
-      dateInput.addEventListener("change", e => updateSlotField(ct.id, "uploadDate", e.target.value));
-      dateInput.addEventListener("focus",  e => { e.target.style.borderColor = ct.color; });
-      dateInput.addEventListener("blur",   e => { e.target.style.borderColor = "var(--border)"; });
-      dateWrap.appendChild(dateInput);
-      panel.appendChild(dateWrap);
-
       // ── STRUCTURED ANALYTICS (#3) ──────────────────────────────────────────
       const analyticsWrap = div({class:"slot-subfield"});
       analyticsWrap.appendChild(div({class:"slot-subfield-label"}, "Analytics"));
@@ -1792,6 +1990,50 @@ self.addEventListener('fetch', e => {
       analyticsWrap.appendChild(analyticsGrid);
       panel.appendChild(analyticsWrap);
 
+      // ── SLOT TASK LIST ─────────────────────────────────────────────────────
+      const slotTaskDefs = SLOT_TASKS[ct.id] || [];
+      if (slotTaskDefs.length > 0) {
+        const slotTasks = slot.tasks || slotTaskDefs.map(() => false);
+        const slotDoneCnt = slotTasks.filter(t => t === true).length;
+        const slotPct = slotTaskDefs.length > 0 ? (slotDoneCnt / slotTaskDefs.length) * 100 : 0;
+
+        const taskWrap = div({class:"slot-subfield"});
+        taskWrap.appendChild(div({class:"slot-subfield-label"}, "Production Tasks"));
+        const taskList = div({class:"task-list", style:{marginBottom:"8px"}});
+        slotTaskDefs.forEach((task, i) => {
+          const done = slotTasks[i] === true;
+          const row = div({
+            id: `slot-task-${ct.id}-${i}`,
+            class: "task-row",
+            style: {
+              background: done ? `${ct.color}0A` : "transparent",
+              border: `1px solid ${done ? ct.color + "40" : "var(--border)"}`,
+            },
+            onclick: (e) => { e.stopPropagation(); toggleSlotTask(ct.id, i); },
+          },
+            div({class:"task-checkbox", style:{
+              border: `1.5px solid ${done ? ct.color : "var(--dim)"}`,
+              background: done ? `${ct.color}25` : "transparent",
+              color: ct.color,
+            }}, done ? "✓" : ""),
+            span({class:"task-text" + (done ? " done" : "")}, task)
+          );
+          taskList.appendChild(row);
+        });
+        taskWrap.appendChild(taskList);
+        taskWrap.appendChild(div({class:"task-progress-row"},
+          div({class:"task-progress-track"},
+            div({id:`slot-task-fill-${ct.id}`, class:"task-progress-fill", style:{width:`${slotPct}%`, background:ct.color}})
+          ),
+          div({id:`slot-task-label-${ct.id}`, class:"task-progress-label"},
+            `${slotDoneCnt}/${slotTaskDefs.length}`,
+            slotDoneCnt === slotTaskDefs.length && slotTaskDefs.length > 0
+              ? span({class:"all-done-badge"}, " ALL DONE") : null
+          )
+        ));
+        panel.appendChild(taskWrap);
+      }
+
       wrap.appendChild(panel);
     });
 
@@ -1801,10 +2043,6 @@ self.addEventListener('fetch', e => {
   // ─── BUILD: DETAIL BODY ───────────────────────────────────────────────────
   function buildDetailBody() {
     if(!state.sel) return div({});
-    const tk = getTaxonomyKey(state.sel);
-    const taskList = TASKS[tk] || [];
-    const doneCnt = state.edit.tasks.filter(t => t === true).length;
-    const pct = taskList.length>0?(doneCnt/taskList.length)*100:0;
     const meta = getDayMeta(state.sel);
 
     return div({},
@@ -1822,43 +2060,8 @@ self.addEventListener('fetch', e => {
         })
       ),
 
-      // Content type slots (the new system)
+      // Content type slots (each with their own task list)
       buildContentSlots(),
-
-      // Production pipeline tasks
-      div({class:"mb-20"},
-        el("label",{class:"field-label"},"Production Pipeline"),
-        div({class:"task-list"},
-          ...taskList.map((task,i) => {
-            const done = state.edit.tasks[i] === true;
-            return div({
-              class:"task-row"+(done?" done":""),
-              style:{
-                background: done?`${meta.accent}0A`:"transparent",
-                border:`1px solid ${done?meta.accent+"40":"var(--border)"}`,
-              },
-              onclick:(e)=>{e.stopPropagation();toggleTask(i);},
-            },
-              div({class:"task-checkbox", style:{
-                border:`1.5px solid ${done?meta.accent:"var(--dim)"}`,
-                background:done?`${meta.accent}25`:"transparent",
-                color:meta.accent,
-              }},done?"✓":""),
-              span({class:"task-text"+(done?" done":"")},task)
-            );
-          })
-        ),
-        div({class:"task-progress-row"},
-          div({class:"task-progress-track"},
-            div({class:"task-progress-fill",style:{width:`${pct}%`,background:meta.accent}})
-          ),
-          div({class:"task-progress-label"},
-            `${doneCnt}/${taskList.length}`,
-            doneCnt===taskList.length && taskList.length>0
-              ? span({class:"all-done-badge"},"ALL DONE") : null
-          )
-        )
-      ),
 
       // Caption (#5, #12, #13)
       div({class:"mb-20"},
@@ -1969,7 +2172,7 @@ self.addEventListener('fetch', e => {
         const frac  = doneFrac(date);
         const isSel = state.sel && fmtKey(state.sel)===key;
         const e     = state.entries[key];
-        const allDone = frac===1 && e?.tasks?.length>0;
+        const allDone = frac===1 && e?.slots && CONTENT_TYPES.some(ct => e.slots[ct.id]?.active && (SLOT_TASKS[ct.id]||[]).length > 0);
         const cell = div({
           class:"day-cell"+(ok?"":" out-of-range")+(isSel?" selected":""),
           style: {
@@ -2110,6 +2313,110 @@ self.addEventListener('fetch', e => {
       btn({class:"data-btn danger",onclick:clearAllData},"✕ Clear All"),
     );
   }
+
+  // ─── BUILD: DEADLINES ─────────────────────────────────────────────────────
+  function buildDeadlines() {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const todayMs = today.getTime();
+
+    // Collect all entries that have at least one active slot
+    const items = [];
+    Object.entries(state.entries).forEach(([key, entry]) => {
+      if (!entry?.slots) return;
+      const date = new Date(key + "T00:00:00");
+      if (isNaN(date)) return;
+      const dateMs_ = date.getTime();
+      const activeSlots = CONTENT_TYPES.filter(ct => entry.slots[ct.id]?.active);
+      if (activeSlots.length === 0) return;
+      activeSlots.forEach(ct => {
+        const slot = entry.slots[ct.id];
+        const taskDefs = SLOT_TASKS[ct.id] || [];
+        const tasks = slot.tasks || [];
+        const doneCnt = tasks.filter(t => t === true).length;
+        const total = taskDefs.length;
+        items.push({ date, dateMs: dateMs_, key, entry, ct, slot, doneCnt, total });
+      });
+    });
+
+    // Sort by date
+    items.sort((a, b) => a.dateMs - b.dateMs);
+
+    // Group
+    const overdue = items.filter(i => i.dateMs < todayMs && i.doneCnt < i.total);
+    const doneOld = items.filter(i => i.dateMs < todayMs && i.doneCnt >= i.total && i.total > 0);
+    const todayItems = items.filter(i => i.dateMs === todayMs);
+    const week = items.filter(i => i.dateMs > todayMs && i.dateMs <= todayMs + 6*86400000);
+    const later = items.filter(i => i.dateMs > todayMs + 6*86400000);
+
+    function makeCard(item) {
+      const { date, ct, slot, doneCnt, total, entry } = item;
+      const pct = total > 0 ? (doneCnt / total) * 100 : 0;
+      const isComplete = doneCnt === total && total > 0;
+      const statusId = slot.postStatus || "none";
+      const statusObj = getStatuses(ct).find(s => s.id === statusId) || getStatuses(ct)[0];
+      const dayLabel = `${DAY_F[date.getDay()]}, ${MONTHS[date.getMonth()].slice(0,3)} ${date.getDate()}`;
+
+      const card = div({
+        class: "deadline-card",
+        style: { borderLeft: `3px solid ${ct.color}`, opacity: isComplete ? "0.6" : "1" },
+        onclick: () => goToDay(wkStart(date), date),
+      });
+
+      const topRow = div({class:"deadline-card-top"});
+      topRow.appendChild(span({class:"deadline-date"}, dayLabel));
+      topRow.appendChild(span({class:"deadline-status", style:{color: statusObj.color}}, "● " + statusObj.label));
+      card.appendChild(topRow);
+
+      const midRow = div({class:"deadline-card-mid"});
+      midRow.appendChild(span({class:"deadline-ct-icon"}, ct.icon));
+      const info = div({class:"deadline-ct-info"});
+      info.appendChild(div({class:"deadline-ct-label", style:{color:ct.color}}, ct.label));
+      if (entry.title) info.appendChild(div({class:"deadline-entry-title"}, entry.title));
+      midRow.appendChild(info);
+      card.appendChild(midRow);
+
+      if (total > 0) {
+        const progRow = div({class:"deadline-prog-row"});
+        progRow.appendChild(div({class:"task-progress-track", style:{flex:"1"}},
+          div({class:"task-progress-fill", style:{width:`${pct}%`, background: isComplete ? "#4A9F6B" : ct.color}})
+        ));
+        progRow.appendChild(span({class:"task-progress-label"}, `${doneCnt}/${total}`));
+        card.appendChild(progRow);
+      }
+      return card;
+    }
+
+    function makeSection(title, items_, accentColor, emptyMsg) {
+      const sec = div({class:"deadline-section"});
+      sec.appendChild(div({class:"deadline-section-title", style:{color: accentColor}}, title));
+      if (items_.length === 0) {
+        sec.appendChild(div({class:"deadline-empty"}, emptyMsg));
+      } else {
+        items_.forEach(item => sec.appendChild(makeCard(item)));
+      }
+      return sec;
+    }
+
+    const wrap = div({class:"deadline-view"});
+    wrap.appendChild(div({class:"overview-title"}, "Upcoming & Recent Upload Dates"));
+
+    if (overdue.length > 0) wrap.appendChild(makeSection("⚠ OVERDUE", overdue, "#A84C4C", ""));
+    wrap.appendChild(makeSection("TODAY", todayItems, "#C9A84C", "Nothing scheduled for today"));
+    wrap.appendChild(makeSection("THIS WEEK", week, "#4A9F8B", "Nothing coming up this week"));
+    wrap.appendChild(makeSection("LATER", later, "var(--muted)", "Nothing further out"));
+    if (doneOld.length > 0) wrap.appendChild(makeSection("✓ COMPLETED", doneOld, "#4A9F6B", ""));
+
+    if (items.length === 0) {
+      wrap.innerHTML = "";
+      wrap.appendChild(div({class:"overview-title"}, "Deadlines"));
+      wrap.appendChild(div({class:"deadline-empty", style:{textAlign:"center",padding:"40px 20px"}},
+        "NO ENTRIES YET · ADD CONTENT SLOTS TO DAYS TO SEE DEADLINES HERE"
+      ));
+    }
+
+    return wrap;
+  }
+
 
   function buildInstallBanner() {
     if(!state.showInstallBanner) return null;
@@ -2380,6 +2687,7 @@ self.addEventListener('fetch', e => {
       div({class:"view-switcher"},
         btn({class:"view-btn"+(state.view==="week"?" active":""),onclick:()=>switchView("week")},"Weekly View"),
         btn({class:"view-btn"+(state.view==="overview"?" active":""),onclick:()=>switchView("overview")},"Full Overview"),
+        btn({class:"view-btn"+(state.view==="deadlines"?" active":""),onclick:()=>switchView("deadlines")},"Deadlines"),
       )
     );
     root.appendChild(header);
@@ -2403,6 +2711,8 @@ self.addEventListener('fetch', e => {
         root.appendChild(buildWeekList());
         root.appendChild(buildWeeklyNote());
       }
+    } else if(state.view==="deadlines") {
+      root.appendChild(buildDeadlines());
     } else {
       root.appendChild(buildOverview());
     }
